@@ -30,6 +30,10 @@ export default {
       type: Boolean,
       default: true
     },
+
+    className: {
+      type: String
+    }
   }
 }
 </script>
