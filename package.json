@@ -1,0 +1,73 @@
+{
+  "name": "gk-openlayers",
+  "version": "1.0.0",
+  "description": "Openlayers Wrapper for Vue3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gkyc-Ltd/gk-openlayers.git"
+  },
+  "homepage": "https://github.com/gkyc-Ltd/gk-openlayers.git",
+  "bugs": {
+    "url": "https://github.com/gkyc-Ltd/gk-openlayers.git/issues"
+  },
+  "keywords": [
+    "gk-openlayers,openlayers vue"
+  ],
+  "author": "ypc",
+  "license": "MIT",
+  "private": false,
+  "main": "dist/gk-openlayers.common.js",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build --target lib --name gk-openlayers src/index.js",
+    "lint": "vue-cli-service lint",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs",
+    "docs:dev": "vitepress dev docs"
+  },
+  "files": [
+    "dist/*",
+    "src/*",
+    "public/*",
+    "*.json",
+    "*.js"
+  ],
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "file-saver": "^2.0.5",
+    "jspdf": "^2.3.1",
+    "ol": "^6.6.1",
+    "ol-contextmenu": "^4.1.0",
+    "ol-ext": "^3.2.4",
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.11.1",
+    "vitepress": "^0.15.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
