@@ -105,8 +105,10 @@ export default {
             grade = 10;
           } else if (zoom > 10 && zoom < 15) {
             grade = 0.1;
-          } else if (zoom > 15 && zoom <= 22) {
-            grade = 0.01;
+          } else if (zoom > 15 && zoom <= 20) {
+            grade = 0.001;
+          } else if (zoom > 20 && zoom <= 25) {
+            grade = 0.0001;
           }
 
           console.log('------------------------------------');
