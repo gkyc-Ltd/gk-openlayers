@@ -30,6 +30,9 @@ export default {
     const map = inject("map");
     const source = inject("vectorSource");
 
+
+
+
     const {
       type,
       clickTolerance,
@@ -94,10 +97,26 @@ export default {
           //   geometry.setCoordinates([[
           //     start, [start[0] - 0.00001, end[1]], end, [end[0] + 0.00001, start[1]], start]
           //   ]);
+          const view = map.getView();
+          const zoom = view.getZoom();
+          let grade = 0.00001;
+
+          if (zoom < 10) {
+            grade = 10;
+          } else if (zoom > 10 && zoom < 15) {
+            grade = 0.1;
+          } else if (zoom > 15 && zoom <= 22) {
+            grade = 0.01;
+          }
+
+          console.log('------------------------------------');
+          console.log(zoom);
+          console.log('------------------------------------');
 
           geometry.setCoordinates([[
-            start, [start[0] - 0.00001, end[1]], end, [end[0] + 0.00001, start[1]], start]
+            start, [start[0] + grade / zoom, end[1]], end, [end[0] - grade / zoom, start[1]], start]
           ]);
+
           // 返回几何图形坐标进行渲染
           return geometry;
         }
