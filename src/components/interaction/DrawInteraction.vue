@@ -158,7 +158,11 @@ export default {
         emit('drawstart', event)
       })
 
+
       draw.on('drawend', (event) => {
+        const view = map.getView();
+        const zoom = view.getZoom();
+        event.feature.set('zoom', zoom)
         event.feature.set('type', type.value)
         event.feature.setId(event.feature.ol_uid)
         emit('drawend', event)
