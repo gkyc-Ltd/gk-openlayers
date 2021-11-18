@@ -1,6 +1,6 @@
 {
   "name": "gk-openlayers",
-  "version": "1.0.0",
+  "version": "1.5.9",
   "description": "Openlayers Wrapper for Vue3",
   "repository": {
     "type": "git",
@@ -23,7 +23,10 @@
     "lint": "vue-cli-service lint",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
-    "docs:dev": "vitepress dev docs"
+    "docs:dev": "vitepress dev docs",
+    "set_taobao": "npm config set registry http://registry.npm.taobao.org/",
+    "clear_taobao": "npm config set registry https://registry.npmjs.org && npm set_taobao",
+    "publish": "npm publish"
   },
   "files": [
     "dist/*",
@@ -49,6 +52,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.11.1",
+    "gk-openlayers": "^1.5.9",
     "vitepress": "^0.15.3"
   },
   "eslintConfig": {
