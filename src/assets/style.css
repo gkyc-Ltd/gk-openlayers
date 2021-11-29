@@ -14,10 +14,19 @@
     top: 0;
     left: 50%;
     transform: translate(-50%, 0);
-    width: 70%;
+    width: 150px;
     position: absolute;
     text-align: center;
+    color: #FFFFFF;
 }
+
+
+.ol-mouse-position::before{
+    content: '坐标：';
+}
+
+
+
 
 .ol-rotate {
     top: .5em;
