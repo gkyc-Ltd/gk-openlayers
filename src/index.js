@@ -16,7 +16,7 @@ import "ol-contextmenu/dist/ol-contextmenu.css";
 import "./assets/style.css";
 
 import feature from "ol/Feature";
-import interaction from "ol/interaction";
+import DragPan from "ol/interaction/DragPan";
 import * as geom from "ol/geom/";
 import * as format from "ol/format";
 import * as loadingstrategy from "ol/loadingstrategy";
@@ -40,8 +40,11 @@ export default function install(app) {
   app.use(Styles);
   app.use(Interactions);
   app.use(Animations);
-
-  app.provide("ol-interaction", interaction);
+  console.log("------------------------------------");
+  console.log("888");
+  console.log(DragPan);
+  console.log("------------------------------------");
+  app.provide("ol-DragPan", DragPan);
   app.provide("ol-feature", feature);
   app.provide("ol-geom", geom);
   app.provide("ol-animations", animations);
