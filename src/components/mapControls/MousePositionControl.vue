@@ -33,6 +33,7 @@ export default {
     },
     projection: {
       type: String,
+
     },
     render: {
       type: Function,

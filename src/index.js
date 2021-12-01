@@ -17,6 +17,10 @@ import "./assets/style.css";
 
 import feature from "ol/Feature";
 import DragPan from "ol/interaction/DragPan";
+import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
+
+// import ol from "ol";
+
 import * as geom from "ol/geom/";
 import * as format from "ol/format";
 import * as loadingstrategy from "ol/loadingstrategy";
@@ -40,10 +44,8 @@ export default function install(app) {
   app.use(Styles);
   app.use(Interactions);
   app.use(Animations);
-  console.log("------------------------------------");
-  console.log("888");
-  console.log(DragPan);
-  console.log("------------------------------------");
+
+  app.provide("ol-DoubleClickZoom", DoubleClickZoom);
   app.provide("ol-DragPan", DragPan);
   app.provide("ol-feature", feature);
   app.provide("ol-geom", geom);
