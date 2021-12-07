@@ -1,7 +1,5 @@
 <template lang="">
-<slot>
-
-</slot>
+  <slot> </slot>
 </template>
 
 <script>
@@ -14,24 +12,18 @@ import {
   toRefs,
   reactive
   //computed
-} from 'vue'
+} from "vue";
 
-import Draw from 'ol/interaction/Draw';
+import Draw from "ol/interaction/Draw";
 //import Style from 'ol/style/Style';
-import Polygon from 'ol/geom/Polygon';
-import DrawRegular from 'ol-ext//interaction/DrawRegular';
+import Polygon from "ol/geom/Polygon";
+import DrawRegular from "ol-ext//interaction/DrawRegular";
 export default {
-  name: 'ol-interaction-draw',
+  name: "ol-interaction-draw",
   emits: ["drawstart", "drawend"],
-  setup(props, {
-    emit
-  }) {
-
+  setup(props, { emit }) {
     const map = inject("map");
     const source = inject("vectorSource");
-
-
-
 
     const {
       type,
@@ -52,34 +44,27 @@ export default {
     } = toRefs(props);
 
     let state = reactive({
-      dtype: '',
-      dgeometryFunction: () => {
-
-      },
+      dtype: "",
+      dgeometryFunction: () => {},
       dsides: 0
-    })
+    });
 
     const getType = () => {
-      state.dtype = type.value
-      state.dsides = sides.value
+      state.dtype = type.value;
+      state.dsides = sides.value;
       state.dgeometryFunction = type.geometryFunction;
 
       if (type.value == "Circle") {
+        state.dsides = 1;
 
-        state.dsides = 1
-
-        return true
+        return true;
       } else if (type.value == "Rectangle") {
-        state.dsides = 4
-
-        return true
-      }
-      else if (type.value === "Rhomboid") {
-        state.dtype = 'LineString';
+        state.dsides = 4;
+        return true;
+      } else if (type.value === "Rhomboid") {
+        state.dtype = "LineString";
         maxPoints.value = 2;
-        state.dgeometryFunction = function (coordinates, geometry) {
-
-
+        state.dgeometryFunction = function(coordinates, geometry) {
           // 开始坐标
           var start = coordinates[0];
           // 结束坐标
@@ -90,9 +75,8 @@ export default {
             //多面几何图形下设置
             geometry = new Polygon([
               [start, [start[0], end[1]], end, [end[0], start[1]], start]
-            ])
+            ]);
           }
-
           // 根据开始与结束坐标绘制,从起始点，回到起始点
           //   geometry.setCoordinates([[
           //     start, [start[0] - 0.00001, end[1]], end, [end[0] + 0.00001, start[1]], start]
@@ -111,28 +95,34 @@ export default {
             grade = 0.0001;
           }
 
-          console.log('------------------------------------');
+          console.log("------------------------------------");
           console.log(zoom);
-          console.log('------------------------------------');
+          console.log("------------------------------------");
 
-          geometry.setCoordinates([[
-            start, [start[0] + grade / zoom, end[1]], end, [end[0] - grade / zoom, start[1]], start]
+          geometry.setCoordinates([
+            [
+              start,
+              [start[0] + grade / zoom, end[1]],
+              end,
+              [end[0] - grade / zoom, start[1]],
+              start
+            ]
           ]);
 
           // 返回几何图形坐标进行渲染
           return geometry;
-        }
-        return false
+        };
+        return false;
       }
-    }
+    };
     let createDraw = () => {
-      const isExt = getType()
-      console.log(type.value)
-      let draw
+      const isExt = getType();
+      console.log(type.value);
+      let draw;
       if (isExt) {
         draw = new DrawRegular({
           source: source.value,
-          sides: state.dsides,
+          sides: state.dsides
         });
       } else {
         draw = new Draw({
@@ -150,69 +140,66 @@ export default {
           condition: condition.value,
           freehand: freehand.value,
           freehandCondition: freehandCondition.value,
-          wrapX: wrapX.value,
+          wrapX: wrapX.value
         });
       }
 
-      draw.on('drawstart', (event) => {
-        emit('drawstart', event)
-      })
+      draw.on("drawstart", event => {
+        emit("drawstart", event);
+      });
 
-
-      draw.on('drawend', (event) => {
+      draw.on("drawend", event => {
         const view = map.getView();
         const zoom = view.getZoom();
-        event.feature.set('zoom', zoom)
-        event.feature.set('type', type.value)
-        event.feature.setId(event.feature.ol_uid)
-        emit('drawend', event)
-      })
+        event.feature.set("zoom", zoom);
+        event.feature.set("type", type.value);
+        event.feature.setId(event.feature.ol_uid);
+        emit("drawend", event);
+      });
 
       return draw;
-
     };
 
     let draw = createDraw();
 
+    watch(
+      [
+        type,
+        clickTolerance,
+        dragVertexDelay,
+        snapTolerance,
+        stopClick,
+        maxPoints,
+        minPoints,
+        finishCondition,
+        geometryFunction,
+        geometryName,
+        condition,
+        freehand,
+        freehandCondition,
+        wrapX
+      ],
+      () => {
+        map.removeInteraction(draw);
+        draw = createDraw();
+        map.addInteraction(draw);
+        draw.changed();
 
-
-    watch([type,
-      clickTolerance,
-      dragVertexDelay,
-      snapTolerance,
-      stopClick,
-      maxPoints,
-      minPoints,
-      finishCondition,
-      geometryFunction,
-      geometryName,
-      condition,
-      freehand,
-      freehandCondition,
-      wrapX
-    ], () => {
-
-      map.removeInteraction(draw);
-      draw = createDraw();
-      map.addInteraction(draw);
-      draw.changed()
-
-      map.changed()
-    })
+        map.changed();
+      }
+    );
 
     onMounted(() => {
       map.addInteraction(draw);
-
     });
 
     onUnmounted(() => {
       map.removeInteraction(draw);
     });
 
-    provide('stylable', draw)
+    provide("stylable", draw);
   },
   props: {
-
     type: {
       type: String,
       required: true
@@ -234,50 +221,40 @@ export default {
       default: false
     },
     maxPoints: {
-      type: Number,
+      type: Number
     },
     minPoints: {
-      type: Number,
-
+      type: Number
     },
     finishCondition: {
-      type: Function,
-
+      type: Function
     },
     geometryFunction: {
-      type: Function,
-
+      type: Function
     },
     geometryName: {
-      type: String,
-
+      type: String
     },
     condition: {
-      type: Function,
-
+      type: Function
     },
     freehand: {
       type: Boolean,
       default: false
-
     },
     freehandCondition: {
-      type: Function,
-
+      type: Function
     },
     wrapX: {
       type: Boolean,
       default: false
-
     },
     sides: {
       type: Number,
       default: 0
     }
   }
-
-}
+};
 </script>
 
-<style lang="">
-</style>
+<style lang=""></style>

@@ -1,12 +1,11 @@
 import { createApp } from "vue";
-import App from "./App.vue";
+import App from "./AppTest.vue";
 
-// import OpenLayersMap from ".";
+import OpenLayersMap from ".";
+// import OpenLayersMap from "gk-openlayers";
+// import "gk-openlayers/dist/gk-openlayers.css";
 
-import OpenLayersMap from "gk-openlayers";
-import "gk-openlayers/dist/gk-openlayers.css";
-
-console.log("------------------------------------");
+console.log("---------------OpenLayersMap---------------------");
 console.log(OpenLayersMap);
 console.log("------------------------------------");
 const app = createApp(App);
