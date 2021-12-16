@@ -1,113 +1,125 @@
 <template lang="">
-<slot>
-
-</slot>
+  <slot> </slot>
 </template>
 
 <script>
-import {
-    provide,
-    inject,
-    watch,
-    onMounted,
-    onUnmounted,
-    computed
-} from 'vue'
+import { provide, inject, watch, onMounted, onUnmounted, computed } from "vue";
 
-import Transform from 'ol-ext/interaction/Transform';
+import Transform from "ol-ext/interaction/Transform";
 
-import usePropsAsObjectProperties from '@/composables/usePropsAsObjectProperties'
+import CopyPaste from "ol-ext/interaction/CopyPaste";
+
+import usePropsAsObjectProperties from "@/composables/usePropsAsObjectProperties";
 
 export default {
-    name: 'ol-interaction-transform',
-    setup(props) {
+  name: "ol-interaction-transform",
+  setup(props) {
+    const map = inject("map");
+    const vector = inject("vectorLayer");
 
-        const map = inject("map");
+    const { properties } = usePropsAsObjectProperties(props);
 
-        const {
-            properties
-        } = usePropsAsObjectProperties(props);
+    let transform = computed(() => {
+      let interaction = new Transform({
+        ...properties,
+      });
 
-        let transform = computed(() => {
-            let interaction = new Transform({
-                ...properties,
-            });
+      return interaction;
+    });
+    console.log("vectorLayer", vector);
+    let copypaste = computed(() => {
+      let copypaste = new CopyPaste({
+        destination: vector.value.getSource(),
+        features: transform.value.getFeatures(),
+      });
+      // Remove selection if cut
+      copypaste.on("cut", function() {
+        transform.value.select();
+      });
 
-            return interaction;
+      copypaste.on("paste", function(e) {
+        transform.value.select();
+        e.features.forEach(function(f) {
+          transform.value.select(f, true);
         });
+      });
+      return copypaste;
+    });
 
-        watch(transform, (newVal, oldVal) => {
+    watch(copypaste, (newVal, oldVal) => {
+      map.removeInteraction(oldVal);
+      map.addInteraction(newVal);
 
-            map.removeInteraction(oldVal);
-            map.addInteraction(newVal);
+      map.changed();
+    });
 
-            map.changed()
-        })
+    watch(transform, (newVal, oldVal) => {
+      map.removeInteraction(oldVal);
+      map.addInteraction(newVal);
 
-        onMounted(() => {
-            map.addInteraction(transform.value);
+      map.changed();
+    });
 
-        });
+    onMounted(() => {
+      map.addInteraction(transform.value);
+      map.addInteraction(copypaste.value);
+    });
 
-        onUnmounted(() => {
-            map.removeInteraction(transform.value);
-        });
+    onUnmounted(() => {
+      map.removeInteraction(transform.value);
+      map.removeInteraction(copypaste.value);
+    });
 
-        provide('stylable', transform)
+    provide("stylable", transform);
+    provide("stylable", copypaste);
+  },
+  props: {
+    enableRotatedTransform: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-
-        enableRotatedTransform: {
-            type: Boolean,
-            default: false
-        },
-        condition: {
-            type: Function,
-
-        },
-        addCondition: {
-            type: Function,
-
-        },
-        filter: {
-            type: Function
-        },
-        layers: {
-            type: Array
-        },
-        hitTolerance: {
-            type: Number,
-            default: 2
-        },
-        translateFeature: {
-            type: Boolean,
-            default: true
-        },
-        scale: {
-            type: Boolean,
-            default: true
-        },
-        rotate: {
-            type: Boolean,
-            default: true
-        },
-        keepAspectRatio: {
-            type: Boolean,
-            default: false
-        },
-        translate: {
-            type: Boolean,
-            default: true
-        },
-        stretch: {
-            type: Boolean,
-            default: true
-        },
-    }
-
-}
+    condition: {
+      type: Function,
+    },
+    addCondition: {
+      type: Function,
+    },
+    filter: {
+      type: Function,
+    },
+    layers: {
+      type: Array,
+    },
+    hitTolerance: {
+      type: Number,
+      default: 2,
+    },
+    translateFeature: {
+      type: Boolean,
+      default: true,
+    },
+    scale: {
+      type: Boolean,
+      default: true,
+    },
+    rotate: {
+      type: Boolean,
+      default: true,
+    },
+    keepAspectRatio: {
+      type: Boolean,
+      default: false,
+    },
+    translate: {
+      type: Boolean,
+      default: true,
+    },
+    stretch: {
+      type: Boolean,
+      default: true,
+    },
+  },
+};
 </script>
 
-<style lang="">
-
-</style>
+<style lang=""></style>
