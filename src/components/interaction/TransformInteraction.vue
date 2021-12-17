@@ -54,12 +54,12 @@ export default {
       return copypaste;
     });
 
-    watch(copypaste, (newVal, oldVal) => {
-      map.removeInteraction(oldVal);
-      map.addInteraction(newVal);
+    // watch(copypaste, (newVal, oldVal) => {
+    //   map.removeInteraction(oldVal);
+    //   map.addInteraction(newVal);
 
-      map.changed();
-    });
+    //   map.changed();
+    // });
 
     watch(transform, (newVal, oldVal) => {
       map.removeInteraction(oldVal);
@@ -80,9 +80,6 @@ export default {
         points: 10,
       });
 
-      //   console.log("------------------------------------");
-      //   console.log(transform.value, circle);
-      //   console.log("------------------------------------");
       transform.value.setStyle(
         "rotate",
         new Style({
@@ -100,7 +97,7 @@ export default {
         "rotate0",
         new Style({
           text: new Text({
-            text: "\uf0e2",
+            text: "\u21BA",
             font: "20px Fontawesome",
             fill: new Fill({ color: [255, 255, 255, 0.8] }),
             stroke: new Stroke({ width: 2, color: "red" }),
@@ -112,7 +109,7 @@ export default {
         "translate",
         new Style({
           text: new Text({
-            text: "\uf047",
+            text: "\u2725",
             font: "20px Fontawesome",
             fill: new Fill({ color: [255, 255, 255, 0.8] }),
             stroke: new Stroke({ width: 2, color: "red" }),
