@@ -15,7 +15,7 @@ import { Fill, RegularShape, Stroke, Text, Style } from "ol/style";
 
 export default {
   name: "ol-interaction-transform",
-  setup(props) {
+  setup(props, { emit }) {
     const map = inject("map");
     const vector = inject("vectorLayer");
 
@@ -34,6 +34,7 @@ export default {
 
       return interaction;
     });
+
     console.log("vectorLayer", vector);
     let copypaste = computed(() => {
       let copypaste = new CopyPaste({
@@ -49,7 +50,17 @@ export default {
         transform.value.select();
         e.features.forEach(function(f) {
           transform.value.select(f, true);
+          console.log("---------44---------------------------");
+          console.log(f);
+          console.log(f.getId());
+          console.log("------------------------------------");
+          f.setId(f.ol_uid);
+          console.log("--------------66----------------------");
+          console.log(f);
+          console.log(f.getId());
+          console.log("------------------------------------");
         });
+        emit("pastend", e);
       });
       return copypaste;
     });
