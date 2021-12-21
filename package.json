@@ -1,6 +1,6 @@
 {
   "name": "gk-openlayers",
-  "version": "1.6.4",
+  "version": "1.6.8",
   "description": "Openlayers Wrapper for Vue3",
   "repository": {
     "type": "git",
@@ -26,7 +26,11 @@
     "docs:dev": "vitepress dev docs",
     "set_taobao": "npm config set registry http://registry.npm.taobao.org/",
     "clear_taobao": "npm config set registry https://registry.npmjs.org && npm set_taobao",
-    "publish": "npm publish"
+    "publish": "npm publish",
+    "publishlogin": "npm adduser --registry=http://192.168.11.4:8081/repository/npm-hosted/"
+  },
+  "publishConfig": {
+  "registry": "http://192.168.11.4:8081/repository/npm-hosted/"
   },
   "files": [
     "dist/*",

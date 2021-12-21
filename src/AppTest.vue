@@ -1,9 +1,9 @@
 <template>
   <div style="position:relative">
-    <div
+    <!-- <div
       id="mouse-position2"
       style="width: 400px;height:200px;background: rebeccapurple;position:absolute;;"
-    ></div>
+    ></div> -->
 
     <div
       class="z-index:10008; width:1000px; height:50px ; position:absolute;background:red;top:0"
@@ -52,7 +52,7 @@
     </div>
 
     <ol-map
-      ref="map"
+      ref="refMap"
       :loadTilesWhileAnimating="true"
       :loadTilesWhileInteracting="true"
       style="height:800px"
@@ -68,6 +68,7 @@
       <!-- <ol-swipe-control ref="swipeControl" v-if="layerList.length > 0" :layerList="layerList" /> -->
 
       <ol-layerswitcherimage-control />
+
       <ol-tile-layer ref="osmLayer" title="OSM">
         <ol-source-osm />
       </ol-tile-layer>
@@ -82,49 +83,49 @@
           html="<i class='fas fa-map-marker'></i>"
           className="edit"
           title="Point"
-          :onToggle="active => (drawEnable = false)"
+          :onToggle="(active) => (drawEnable = false)"
         />
         <ol-control-toggle
           :order="0"
           html="<i class='fas fa-map-marker'></i>"
           className="edit"
           title="Point"
-          :onToggle="active => changeDrawType(active, 'Point')"
+          :onToggle="(active) => changeDrawType(active, 'Point')"
         />
         <ol-control-toggle
           :order="1"
           html="<i class='fas fa-draw-polygon'></i>"
           className="edit"
           title="Polygon"
-          :onToggle="active => changeDrawType(active, 'Polygon')"
+          :onToggle="(active) => changeDrawType(active, 'Polygon')"
         />
         <ol-control-toggle
           :order="2"
           html="<i class='fas fa-circle'></i>"
           className="edit"
           title="Circle"
-          :onToggle="active => changeDrawType(active, 'Circle')"
+          :onToggle="(active) => changeDrawType(active, 'Circle')"
         />
         <ol-control-toggle
           :order="3"
           html="<i class='fas fa-grip-lines'></i>"
           className="edit"
           title="LineString"
-          :onToggle="active => changeDrawType(active, 'LineString')"
+          :onToggle="(active) => changeDrawType(active, 'LineString')"
         />
         <ol-control-toggle
           :order="3"
           html="<i class='fas fa-info'></i>"
           className="edit"
           title="LineString"
-          :onToggle="active => handleClick(active, 'undo')"
+          :onToggle="(active) => handleClick(active, 'undo')"
         />
         <ol-control-toggle
           :order="3"
           html="<i class='fas fa-info'></i>"
           className="edit"
           title="LineString"
-          :onToggle="active => handleClick(active, 'redo')"
+          :onToggle="(active) => handleClick(active, 'redo')"
         />
         <!-- <ol-control-videorecorder :order="4" @stop="videoStopped">
         </ol-control-videorecorder>
@@ -133,6 +134,7 @@
 
       <ol-mouseposition-control :target="targetMouse" />
       <ol-fullscreen-control />
+
       <ol-overviewmap-control>
         <ol-tile-layer>
           <ol-source-osm />
@@ -141,14 +143,16 @@
 
       <ol-scaleline-control />
       <ol-rotate-control />
-      <ol-zoom-control />
+      <!-- <ol-zoom-control />
       <ol-zoomslider-control />
       <ol-zoomtoextent-control
         :extent="[23.906, 42.812, 46.934, 34.597]"
         tipLabel="Fit to Turkey"
-      />
+      /> -->
 
       <ol-context-menu :items="contextMenuItems" />
+
+      <ol-interaction-dragbox />
 
       <ol-interaction-undoredo @undo="onundo" ref="undoredoInteraction" />
       <!-- <ol-interaction-dragrotatezoom /> -->
@@ -174,14 +178,15 @@
         title="AIRPORTS"
         preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
       >
+        <ol-interaction-transform />
         <ol-source-vector ref="vectorsource" @change="change">
           <!-- :features="zones" -->
-          <ol-interaction-modify
+          <!-- <ol-interaction-modify
             v-if="drawEnable"
             @modifyend="modifyend"
             @modifystart="modifystart"
           >
-          </ol-interaction-modify>
+          </ol-interaction-modify> -->
 
           <ol-interaction-draw
             v-if="drawEnable"
@@ -254,7 +259,7 @@
           </div>
         </template>
       </ol-overlay>
-      <ol-interaction-transform :condition="selectCondition" />
+
       <!-- <ol-vector-layer>
         <ol-source-vector>
             <ol-feature ref="animationPath">
@@ -286,14 +291,9 @@ import { Collection } from "ol";
 import markerIcon from "@/assets/marker.png";
 import starIcon from "@/assets/star.png";
 import { Fill, Stroke, Style, Text } from "ol/style";
-
+// import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
 import DragPan from "ol/interaction/DragPan";
-import DragPan2 from "ol/interaction/DragPan";
-console.log("xxxxxxxxxxxxxxxxxxx");
-console.log(DragPan);
-console.log("------------------------------------");
-console.log(DragPan2);
-console.log("------------------------------------");
+
 // import { create } from 'ol/transform'
 // import { circular as circularPolygon } from 'ol/geom/Polygon';
 
@@ -351,7 +351,7 @@ export default {
     }
 
     function createLabelAll() {
-      state.newFeatures.map(feature => {
+      state.newFeatures.map((feature) => {
         createLabelStyle(feature);
       });
     }
@@ -382,16 +382,16 @@ export default {
             fill: new Fill({
               //填充样式 文本
 
-              color: "#FFFFFF"
+              color: "#FFFFFF",
             }),
 
             backgroundFill: new Fill({
               // 填充背景
 
-              color: [0, 0, 0, 0.6]
+              color: [0, 0, 0, 0.6],
             }),
 
-            padding: [2, 5, 2, 5]
+            padding: [2, 5, 2, 5],
           }),
 
           stroke: new Stroke({
@@ -400,18 +400,18 @@ export default {
                 .get("color")
                 .substring(0, feature.get("color").lastIndexOf(",")) + "1)",
 
-            width: isSelected ? 9 : 2
+            width: isSelected ? 9 : 2,
           }),
 
           fill: new Fill({
             //填充样式
 
-            color: feature.get("color")
+            color: feature.get("color"),
           }),
 
           // 设置层级
 
-          zIndex: 199
+          zIndex: 199,
         })
       );
     }
@@ -428,15 +428,15 @@ export default {
               children: [
                 { name: "花开" },
                 { name: "温暖" },
-                { name: "光芒万丈" }
-              ]
-            }
-          ]
+                { name: "光芒万丈" },
+              ],
+            },
+          ],
         },
         {
           name: "夏天",
-          children: [{ name: "炎热" }, { name: "凉快" }]
-        }
+          children: [{ name: "炎热" }, { name: "凉快" }],
+        },
       ],
       drawcolor: "black",
       oldFeaturesObject: {},
@@ -471,8 +471,8 @@ export default {
         // { name: '缩小', icon: '缩小|svg' },
 
         // { name: '放大', icon: '放大|svg' },
-        { name: "隐藏", icon: "隐藏|svg" }
-      ]
+        { name: "隐藏", icon: "隐藏|svg" },
+      ],
     });
 
     var geojsonObject = {
@@ -480,8 +480,8 @@ export default {
       crs: {
         type: "name",
         properties: {
-          name: "EPSG:4326"
-        }
+          name: "EPSG:4326",
+        },
       },
       features: [
         {
@@ -494,12 +494,12 @@ export default {
                 [-103.90891107984544, 39.34240191087722],
                 [-98.76630637117387, 39.558687199211114],
                 [-98.89435771175386, 43.945405844902986],
-                [-103.86923852630616, 43.45599322423934]
-              ]
-            ]
+                [-103.86923852630616, 43.45599322423934],
+              ],
+            ],
           },
           properties: { color: "rgba(255,255,0,0.3)", name: "xx" },
-          id: 151
+          id: 151,
         },
         {
           type: "Feature",
@@ -511,12 +511,12 @@ export default {
                 [-103.86770698495866, 33.218572724914544],
                 [-98.20654544301988, 33.6532810221672],
                 [-98.4408283538437, 38.31894739375114],
-                [-103.85636392303468, 38.10970692739486]
-              ]
-            ]
+                [-103.85636392303468, 38.10970692739486],
+              ],
+            ],
           },
           properties: { color: "rgba(255,0,0,0.3)", name: "x3x" },
-          id: 2
+          id: 2,
         },
         {
           type: "Feature",
@@ -528,12 +528,12 @@ export default {
                 [-106.10411678268781, 44.87682371292652],
                 [-100.92047838756771, 44.87682371292652],
                 [-98.92047838756771, 46.17796288310605],
-                [-104.10411678268781, 46.17796288310605]
-              ]
-            ]
+                [-104.10411678268781, 46.17796288310605],
+              ],
+            ],
           },
           properties: { color: "rgba(255,0,0,0.3)", name: "x3x" },
-          id: "174"
+          id: "174",
         },
         {
           type: "Feature",
@@ -545,14 +545,14 @@ export default {
                 [-114.33372929814959, 44.539624407282595],
                 [-107.0926477238409, 44.539624407282595],
                 [-105.0926477238409, 46.463212857427806],
-                [-112.33372929814959, 46.463212857427806]
-              ]
-            ]
+                [-112.33372929814959, 46.463212857427806],
+              ],
+            ],
           },
           properties: { color: "rgba(255,0,0,0.3)", name: "x3x" },
-          id: "1564"
-        }
-      ]
+          id: "1564",
+        },
+      ],
     };
 
     const zones = ref([]);
@@ -576,8 +576,7 @@ export default {
 
     const selectConditions = inject("ol-selectconditions");
 
-    const selectCondition = selectConditions.click;
-
+    const selectCondition = selectConditions.doubleClick;
     const selectedCityName = ref("");
     const selectedCityPosition = ref([]);
 
@@ -597,7 +596,7 @@ export default {
     const drawType = ref("Point");
     const map = inject("map");
 
-    const drawend = event => {
+    const drawend = (event) => {
       // zones.value.push(event.feature)
       console.log("00");
       console.log(vectorsource.value.source.getFeatures());
@@ -635,7 +634,7 @@ export default {
       }
     };
 
-    const onundo = e => {
+    const onundo = (e) => {
       console.log(vectorsource.value.source);
       console.log(e);
     };
@@ -661,24 +660,24 @@ export default {
       {
         text: "Center map here",
         classname: "some-style-class", // add some CSS rules
-        callback: val => {
+        callback: (val) => {
           view.value.setCenter(val.coordinate);
-        } // `center` is your callback function
+        }, // `center` is your callback function
       },
       {
         text: "Add a Marker",
         classname: "some-style-class", // you can add this icon with a CSS class
         // instead of `icon` property (see next line)
         icon: markerIcon, // this can be relative or absolute
-        callback: val => {
+        callback: (val) => {
           console.log(val);
           let feature = new Feature({
-            geometry: new Geom.Point(val.coordinate)
+            geometry: new Geom.Point(val.coordinate),
           });
           vectorsource.value.source.addFeature(feature);
-        }
+        },
       },
-      "-" // this is a separator
+      "-", // this is a separator
     ];
 
     function change(item) {
@@ -691,14 +690,14 @@ export default {
       console.log(state.newFeaturesJson);
     }
 
-    const selectInteactionFilter = feature => {
+    const selectInteactionFilter = (feature) => {
       console.log("------------88------------------------");
       console.log(feature.values_.name);
       console.log("------------------------------------");
       return feature.values_.name != undefined;
     };
 
-    const featureSelected = event => {
+    const featureSelected = (event) => {
       console.log("我进来了");
       console.log(event.selected.length);
       if (event.selected.length == 1) {
@@ -754,19 +753,19 @@ export default {
       return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
     };
 
-    const drawstart = event => {
+    const drawstart = (event) => {
       console.log(event);
     };
 
-    const modifystart = event => {
+    const modifystart = (event) => {
       console.log(event);
     };
 
-    const modifyend = event => {
+    const modifyend = (event) => {
       console.log(event);
     };
 
-    const videoStopped = event => {
+    const videoStopped = (event) => {
       console.log(event);
     };
 
@@ -779,16 +778,27 @@ export default {
       [27.759765625, 44.75500000000001],
       [28.287109375, 43.32677734375001],
       [30.55029296875, 46.40294921875001],
-      [31.69287109375, 43.04113281250001]
+      [31.69287109375, 43.04113281250001],
     ]);
     const animationPath = ref(null);
 
     watchEffect(() => {
       console.log();
     });
+    const refMap = ref(null);
+
+    function disableMove() {
+      refMap.value.map.getInteractions().forEach(function(element) {
+        if (element instanceof DragPan) {
+          element.setActive(false);
+        }
+      });
+    }
 
     const targetMouse = ref(null);
     onMounted(() => {
+      disableMove();
+
       targetMouse.value = document.getElementById("mouse-position2");
       vectorsource.value.source.addFeatures(zones.value);
       createLabelAll();
@@ -799,6 +809,8 @@ export default {
     });
 
     return {
+      refMap,
+
       targetMouse,
       saveGeoJson,
       changeHandleType,
@@ -841,9 +853,9 @@ export default {
       changeDrawType,
       handleClick,
       path,
-      animationPath
+      animationPath,
     };
-  }
+  },
 };
 </script>
 
