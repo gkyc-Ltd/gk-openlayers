@@ -54,6 +54,7 @@ export default {
     const getType = () => {
       state.dtype = type.value;
       state.dsides = sides.value;
+      state.maxPoints = maxPoints.value;
       state.dgeometryFunction = type.geometryFunction;
 
       if (type.value == "Circle") {
