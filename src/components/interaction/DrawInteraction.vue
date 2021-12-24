@@ -57,8 +57,13 @@ export default {
       state.maxPoints = maxPoints.value;
 
       state.dgeometryFunction = type.geometryFunction;
-
-      if (type.value == "Circle") {
+      if (type.value == "Polygon") {
+        // state.dsides = 1;
+        state.maxPoints = undefined;
+      } else if (type.value == "LineString") {
+        // state.dsides = 1;
+        state.maxPoints = 2;
+      } else if (type.value == "Circle") {
         state.dsides = 1;
 
         return true;
@@ -146,7 +151,7 @@ export default {
     };
     let createDraw = () => {
       const isExt = getType();
-
+      console.log("wwwwwwwwww", state.maxPoints);
       let draw;
       if (isExt) {
         draw = new DrawRegular({
@@ -162,7 +167,7 @@ export default {
           snapTolerance: snapTolerance.value,
           stopClick: stopClick.value,
           maxPoints: state.maxPoints,
-          minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
+          // minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
           //minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
           finishCondition: finishCondition.value,
           geometryFunction: state.dgeometryFunction,
