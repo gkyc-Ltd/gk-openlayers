@@ -55,6 +55,7 @@ export default {
       state.dtype = type.value;
       state.dsides = sides.value;
       state.maxPoints = maxPoints.value;
+
       state.dgeometryFunction = type.geometryFunction;
 
       if (type.value == "Circle") {
@@ -65,8 +66,8 @@ export default {
         state.dsides = 4;
         return true;
       } else if (type.value === "Rhomboid") {
-        state.dtype = "Polygon";
         state.maxPoints = 3;
+        state.dtype = "Polygon";
         state.dgeometryFunction = function(coordinates, geometry) {
           let pointers = coordinates[0];
           // 第一个点
@@ -83,11 +84,9 @@ export default {
           let y4 = null;
           x4 = x1 - x2 + (x3 - x4);
           y4 = y1 - y2 + y3;
-
           let newCoordinates = [...pointers];
           newCoordinates.push([x4, y4]); // 添加及计算的第四个点。
           newCoordinates.push(newCoordinates[0].slice()); // 添加起始点闭合画图
-          console.log(newCoordinates);
           if (!geometry) {
             geometry = new Polygon([newCoordinates]);
           } else {
@@ -139,7 +138,6 @@ export default {
           //       start
           //     ]
           //   ]);
-
           // 返回几何图形坐标进行渲染
           return geometry;
         };
@@ -148,7 +146,7 @@ export default {
     };
     let createDraw = () => {
       const isExt = getType();
-      console.log(type.value);
+
       let draw;
       if (isExt) {
         draw = new DrawRegular({
@@ -164,7 +162,8 @@ export default {
           snapTolerance: snapTolerance.value,
           stopClick: stopClick.value,
           maxPoints: state.maxPoints,
-          minPoints: minPoints.value,
+          minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
+          //minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
           finishCondition: finishCondition.value,
           geometryFunction: state.dgeometryFunction,
           geometryName: geometryName.value,
@@ -211,7 +210,7 @@ export default {
         wrapX,
       ],
       () => {
-        state.maxPoints = maxPoints;
+        // state.maxPoints = maxPoints;
         map.removeInteraction(draw);
         draw = createDraw();
         map.addInteraction(draw);
