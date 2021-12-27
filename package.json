@@ -1,6 +1,6 @@
 {
   "name": "gk-openlayers",
-  "version": "1.7.0",
+  "version": "1.7.2",
   "description": "Openlayers Wrapper for Vue3",
   "repository": {
     "type": "git",
