@@ -18,8 +18,11 @@ import "./assets/style.css";
 import feature from "ol/Feature";
 import DragPan from "ol/interaction/DragPan";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
+import Coordinate from "ol/coordinate";
 
 // import ol from "ol";
+
+console.log("1.6.6");
 
 import * as geom from "ol/geom/";
 import * as format from "ol/format";
@@ -45,6 +48,7 @@ export default function install(app) {
   app.use(Interactions);
   app.use(Animations);
 
+  app.provide("ol-coordinate", Coordinate);
   app.provide("ol-DoubleClickZoom", DoubleClickZoom);
   app.provide("ol-DragPan", DragPan);
   app.provide("ol-feature", feature);

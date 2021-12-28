@@ -167,8 +167,6 @@ export default {
           snapTolerance: snapTolerance.value,
           stopClick: stopClick.value,
           maxPoints: state.maxPoints,
-          // minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
-          //minPoints: type.value === "Rhomboid" ? 3 : minPoints.value,
           finishCondition: finishCondition.value,
           geometryFunction: state.dgeometryFunction,
           geometryName: geometryName.value,
@@ -197,6 +195,7 @@ export default {
 
     let draw = createDraw();
 
+    //props的变化会重新初始化
     watch(
       [
         type,
