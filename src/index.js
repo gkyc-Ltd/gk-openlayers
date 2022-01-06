@@ -18,12 +18,12 @@ import "./assets/style.css";
 import feature from "ol/Feature";
 import DragPan from "ol/interaction/DragPan";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
-import Coordinate from "ol/coordinate";
-import OL from "ol";
+import * as Coordinate from "ol/coordinate";
+import * as OL from "ol";
+
+import config from "../package.json";
+console.log("当前版本", config.version);
 // import ol from "ol";
-
-console.log("1.7.5");
-
 import * as geom from "ol/geom/";
 import * as format from "ol/format";
 import * as loadingstrategy from "ol/loadingstrategy";
