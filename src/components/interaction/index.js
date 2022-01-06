@@ -7,6 +7,7 @@ import TransformInteraction from "./TransformInteraction.vue";
 import DragRotateAndZoomInteraction from "./DragRotateAndZoomInteraction.vue";
 import UndoredoInteraction from "./UndoredoInteraction.vue";
 import DefaultsdoInteraction from "./DefaultsdoInteraction.vue";
+import DragBoxInteraction from "./DragBoxInteraction.vue";
 
 function install(app) {
   if (install.installed) {
@@ -23,6 +24,7 @@ function install(app) {
   app.component(TransformInteraction.name, TransformInteraction);
   app.component(UndoredoInteraction.name, UndoredoInteraction);
   app.component(DefaultsdoInteraction.name, DefaultsdoInteraction);
+  app.component(DragBoxInteraction.name, DragBoxInteraction);
 
   app.component(
     DragRotateAndZoomInteraction.name,
@@ -42,5 +44,6 @@ export {
   ModifyInteraction,
   TransformInteraction,
   DragRotateAndZoomInteraction,
-  UndoredoInteraction
+  UndoredoInteraction,
+  DragBoxInteraction
 };
