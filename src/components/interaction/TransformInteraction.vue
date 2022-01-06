@@ -13,6 +13,8 @@ import usePropsAsObjectProperties from "@/composables/usePropsAsObjectProperties
 
 import { Fill, RegularShape, Stroke, Text, Style } from "ol/style";
 
+import { always } from "ol/events/condition";
+
 export default {
   name: "ol-interaction-transform",
   setup(props, { emit }) {
@@ -42,13 +44,13 @@ export default {
         features: transform.value.getFeatures(),
       });
       // Remove selection if cut
-      copypaste.on("cut", function() {
+      copypaste.on("cut", function () {
         transform.value.select();
       });
 
-      copypaste.on("paste", function(e) {
+      copypaste.on("paste", function (e) {
         transform.value.select();
-        e.features.forEach(function(f) {
+        e.features.forEach(function (f) {
           transform.value.select(f, true);
           console.log("---------44---------------------------");
           console.log(f);
@@ -171,8 +173,8 @@ export default {
       default: true,
     },
     keepAspectRatio: {
-      type: Boolean,
-      default: false,
+      type: Function,
+      default: always,
     },
     translate: {
       type: Boolean,
