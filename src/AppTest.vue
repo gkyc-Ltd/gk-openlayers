@@ -1,17 +1,12 @@
 <template>
   <div style="position:relative">
-    <!-- <div
-      id="mouse-position2"
-      style="width: 400px;height:200px;background: rebeccapurple;position:absolute;;"
-    ></div> -->
-
     <div
       class="z-index:10008; width:1000px; height:50px ; position:absolute;background:red;top:0"
     >
       <div
         v-for="(item, index) in dataHandleType"
         :key="index"
-        style="width:400px"
+        style="width:400px;display: inline;"
         class="flex flex-wrap justify-center h-10 ml-5 text-white cursor-pointer z-1000 w-15"
         @click="changeHandleType(item.name, item.type)"
       >
@@ -65,17 +60,11 @@
         :projection="projection"
       />
 
-      <!-- <ol-swipe-control ref="swipeControl" v-if="layerList.length > 0" :layerList="layerList" /> -->
-
       <ol-layerswitcherimage-control />
 
       <ol-tile-layer ref="osmLayer" title="OSM">
         <ol-source-osm />
       </ol-tile-layer>
-
-      <!-- <ol-tile-layer ref="jawgLayer" title="JAWG">
-        <ol-source-xyz crossOrigin='anonymous' url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ" />
-    </ol-tile-layer> -->
 
       <ol-control-bar className="barclass">
         <ol-control-toggle
@@ -179,6 +168,7 @@
         preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
       >
         <ol-interaction-transform />
+
         <ol-source-vector ref="vectorsource" @change="change">
           <!-- :features="zones" -->
           <!-- <ol-interaction-modify
@@ -207,48 +197,6 @@
         </ol-style>
       </ol-vector-layer>
 
-      <!-- <ol-vector-layer :updateWhileAnimating="true" :updateWhileInteracting="true" title="STAR" preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/star.png">
-        <ol-source-vector ref="vectorsource">
-
-            <ol-animation-shake :duration="2000" :repeat="5">
-                <ol-feature v-for="index in 20" :key="index" :properties="{'id':index}">
-                    <ol-geom-point :coordinates="[getRandomInRange(24,45,3),getRandomInRange(35,41,3)]"></ol-geom-point>
-
-                    <ol-style>
-                        <ol-style-icon :src="starIcon" :scale="0.1"></ol-style-icon>
-                    </ol-style>
-                </ol-feature>
-            </ol-animation-shake>
-
-        </ol-source-vector>
-
-    </ol-vector-layer> -->
-
-      <!-- <ol-animated-clusterlayer :animationDuration="500" :distance="40" title="CLUSTER" preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/cluster.png">
-
-        <ol-source-vector ref="vectorsource">
-          <ol-feature v-for="index in 500" :key="index">
-            <ol-geom-point :coordinates="[getRandomInRange(24,45,3),getRandomInRange(35,41,3)]"></ol-geom-point>
-
-          </ol-feature>
-        </ol-source-vector>
-
-        <ol-style :overrideStyleFunction="overrideStyleFunction">
-          <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-          <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
-
-          <ol-style-circle :radius="20">
-            <ol-style-stroke color="black" :width="15" :lineDash="[]" lineCap="butt"></ol-style-stroke>
-            <ol-style-fill color="black"></ol-style-fill>
-          </ol-style-circle>
-
-          <ol-style-text>
-            <ol-style-fill color="white"></ol-style-fill>
-          </ol-style-text>
-        </ol-style>
-
-      </ol-animated-clusterlayer> -->
-
       <ol-overlay
         :position="selectedCityPosition"
         v-if="selectedCityName != '' && !drawEnable"
@@ -259,28 +207,6 @@
           </div>
         </template>
       </ol-overlay>
-
-      <!-- <ol-vector-layer>
-        <ol-source-vector>
-            <ol-feature ref="animationPath">
-                <ol-geom-line-string :coordinates="path"></ol-geom-line-string>
-                <ol-style-flowline color="red" color2="yellow" :width="10" :width2="10" :arrow="1" arrowColor="red" />
-            </ol-feature>
-            <ol-animation-path v-if="animationPath" :path="animationPath.feature" :duration="4000" :repeat="10">
-
-                <ol-feature>
-                    <ol-geom-point :coordinates="path[0]"></ol-geom-point>
-                    <ol-style>
-                        <ol-style-circle :radius="10">
-                            <ol-style-fill color="blue"></ol-style-fill>
-                            <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-                        </ol-style-circle>
-                    </ol-style>
-
-                </ol-feature>
-            </ol-animation-path>
-        </ol-source-vector>
-    </ol-vector-layer> -->
     </ol-map>
   </div>
 </template>
@@ -293,6 +219,7 @@ import starIcon from "@/assets/star.png";
 import { Fill, Stroke, Style, Text } from "ol/style";
 // import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
 import DragPan from "ol/interaction/DragPan";
+import * as coordinateX from "ol/coordinate";
 
 // import { create } from 'ol/transform'
 // import { circular as circularPolygon } from 'ol/geom/Polygon';
@@ -306,6 +233,11 @@ export default {
     const rotation = ref(0);
     const format = inject("ol-format");
     const geoJson = new format.GeoJSON();
+
+    const coordinatex = inject("ol-coordinate");
+    console.log("-----------------8888-------------------");
+    console.log(coordinatex);
+    console.log("------------------------------------");
 
     function saveGeoJson() {
       console.log(state.newFeaturesJson);
@@ -700,11 +632,22 @@ export default {
     const featureSelected = (event) => {
       console.log("我进来了");
       console.log(event.selected.length);
+      console.log("rrrr", event.selected[0].getGeometry());
+      var coordinate2 = event.selected[0].getGeometry().getCoordinates();
+      //move coordinates some distance
+      console.log(coordinateX);
+      coordinateX.add(coordinate2, center.value[0], center.value[1]);
+
+      // use setGeometry to move it
+      // selectedFeatures.value.array_[0].setGeometry(new coordinateX());
+      // selectedFeatures.value.array_[0].getGeometry().translate(center.value);
+      // refCascader.value.blur();
+
       if (event.selected.length == 1) {
         selectedCityPosition.value = extent.getCenter(
           event.selected[0].getGeometry().extent_
         );
-        center.value = selectedCityPosition.value;
+        // center.value = selectedCityPosition.value;
         selectedFeatures.value = event.target.getFeatures();
         createLabelStyle(event.selected[0], true); //改变当前fetaure样式
         event.selected[0].changed();
