@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import App from "./AppTest.vue";
+import App from "./APP.vue";
 
 import OpenLayersMap from ".";
 // import OpenLayersMap from "gk-openlayers";

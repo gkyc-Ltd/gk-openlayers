@@ -1,12 +1,12 @@
 <template>
-  <div style="position:relative">
+  <div style="position: relative">
     <div
       class="z-index:10008; width:1000px; height:50px ; position:absolute;background:red;top:0"
     >
       <div
         v-for="(item, index) in dataHandleType"
         :key="index"
-        style="width:400px;display: inline;"
+        style="width: 400px; display: inline"
         class="flex flex-wrap justify-center h-10 ml-5 text-white cursor-pointer z-1000 w-15"
         @click="changeHandleType(item.name, item.type)"
       >
@@ -18,7 +18,15 @@
     </div>
 
     <div
-      style="z-index:10008; width:300px; height:300px ; position:absolute;background:red;bottom:0;right:0"
+      style="
+        z-index: 10008;
+        width: 300px;
+        height: 300px;
+        position: absolute;
+        background: red;
+        bottom: 0;
+        right: 0;
+      "
     >
       <div v-for="(item, index) in newFeaturesJson" :key="index">
         <span class="truncate">{{ item.geometry?.type }}</span>
@@ -29,7 +37,7 @@
 
         <span class="flex justify-between col-span-2">
           <button
-            style="width:50px;height:50px"
+            style="width: 50px; height: 50px"
             @click="handleFeatureJson('edit', item)"
           >
             x
@@ -50,7 +58,7 @@
       ref="refMap"
       :loadTilesWhileAnimating="true"
       :loadTilesWhileInteracting="true"
-      style="height:800px"
+      style="height: 800px"
     >
       <ol-view
         ref="view"
@@ -141,7 +149,8 @@
 
       <ol-context-menu :items="contextMenuItems" />
 
-      <ol-interaction-dragbox />
+      <!-- 框选 -->
+      <!-- <ol-interaction-dragbox /> -->
 
       <ol-interaction-undoredo @undo="onundo" ref="undoredoInteraction" />
       <!-- <ol-interaction-dragrotatezoom /> -->
@@ -218,7 +227,7 @@ import markerIcon from "@/assets/marker.png";
 import starIcon from "@/assets/star.png";
 import { Fill, Stroke, Style, Text } from "ol/style";
 // import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
-import DragPan from "ol/interaction/DragPan";
+// import DragPan from "ol/interaction/DragPan";
 import * as coordinateX from "ol/coordinate";
 
 // import { create } from 'ol/transform'
@@ -670,18 +679,12 @@ export default {
       let dash = (2 * Math.PI * radius) / 6;
       let calculatedDash = [0, dash, dash, dash, dash, dash, dash];
 
-      style
-        .getImage()
-        .getStroke()
-        .setLineDash(dash);
+      style.getImage().getStroke().setLineDash(dash);
       style
         .getImage()
         .getStroke()
         .setColor("rgba(" + color + ",0.5)");
-      style
-        .getImage()
-        .getStroke()
-        .setLineDash(calculatedDash);
+      style.getImage().getStroke().setLineDash(calculatedDash);
       style
         .getImage()
         .getFill()
@@ -730,17 +733,17 @@ export default {
     });
     const refMap = ref(null);
 
-    function disableMove() {
-      refMap.value.map.getInteractions().forEach(function(element) {
-        if (element instanceof DragPan) {
-          element.setActive(false);
-        }
-      });
-    }
+    // function disableMove() {
+    //   refMap.value.map.getInteractions().forEach(function (element) {
+    //     if (element instanceof DragPan) {
+    //       element.setActive(false);
+    //     }
+    //   });
+    // }
 
     const targetMouse = ref(null);
     onMounted(() => {
-      disableMove();
+      //   disableMove();
 
       targetMouse.value = document.getElementById("mouse-position2");
       vectorsource.value.source.addFeatures(zones.value);

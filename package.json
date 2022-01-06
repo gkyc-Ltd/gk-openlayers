@@ -1,6 +1,6 @@
 {
   "name": "gk-openlayers",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "description": "Openlayers Wrapper for Vue3",
   "repository": {
     "type": "git",
@@ -18,6 +18,8 @@
   "private": false,
   "main": "dist/gk-openlayers.common.js",
   "scripts": {
+    "bootstrap": "yarn install",
+    "clean": "  npm cache clean -f",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name gk-openlayers src/index.js",
     "lint": "vue-cli-service lint",
@@ -45,7 +47,7 @@
     "jspdf": "^2.3.1",
     "ol": "^6.6.1",
     "ol-contextmenu": "^4.1.0",
-    "ol-ext": "^3.2.4",
+    "ol-ext": "^3.2.19",
     "vue": "^3.0.0"
   },
   "devDependencies": {
