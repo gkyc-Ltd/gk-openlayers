@@ -18,6 +18,12 @@ import Draw from "ol/interaction/Draw";
 //import Style from 'ol/style/Style';
 import Polygon from "ol/geom/Polygon";
 import DrawRegular from "ol-ext//interaction/DrawRegular";
+import SnapGuides from "ol-ext//interaction/SnapGuides";
+
+import VectorImage from "ol/layer/VectorImage";
+
+// import Modify from "ol/interaction/Modify";
+// import { transform } from "ol/proj";
 
 export default {
   name: "ol-interaction-draw",
@@ -84,12 +90,14 @@ export default {
           // 第三个点
           let x3 = pointers[2] ? pointers[2][0] : null;
           let y3 = pointers[2] ? pointers[2][1] : null;
+
           // 第四个点
           let x4 = null;
           let y4 = null;
           x4 = x1 - x2 + (x3 - x4);
           y4 = y1 - y2 + y3;
           let newCoordinates = [...pointers];
+
           newCoordinates.push([x4, y4]); // 添加及计算的第四个点。
           newCoordinates.push(newCoordinates[0].slice()); // 添加起始点闭合画图
           if (!geometry) {
@@ -149,6 +157,7 @@ export default {
         return false;
       }
     };
+
     let createDraw = () => {
       const isExt = getType();
       console.log("wwwwwwwwww", state.maxPoints);
@@ -177,6 +186,33 @@ export default {
         });
       }
 
+      let snapi = new SnapGuides({
+        vectorClass: VectorImage,
+      });
+
+      //   console.log("------------------------------------");
+      //   console.log(map.getView().getProjection());
+      //   console.log("------------------------------------");
+
+      //   var p1 = transform(
+      //     [0 || 0, 1],
+      //     "EPSG:4326",
+      //     map.getView().getProjection()
+      //   );
+      //   var p2 = transform(
+      //     [0 || 0, -1],
+      //     "EPSG:4326",
+      //     map.getView().getProjection()
+      //   );
+      //   snapi.addGuide([p1, p2]);
+      //   const vectorLayer = inject("vectorLayer");
+      //   var modi = new Modify({ source: vectorLayer.value.getSource() });
+      //   map.addInteraction(modi);
+
+      //   snapi.setModifyInteraction(modi);
+      snapi.setDrawInteraction(draw);
+      map.addInteraction(snapi);
+
       draw.on("drawstart", (event) => {
         emit("drawstart", event);
       });
@@ -193,7 +229,18 @@ export default {
       return draw;
     };
 
+    // let createSnapGuides = () => {
+    //   snapi = new SnapGuides({
+    //     vectorClass: VectorImage,
+    //   });
+
+    //   snapi.setDrawInteraction(draw);
+    //   // snapi.setModifyInteraction(modi);
+    // };
+
     let draw = createDraw();
+
+    // let snapi = createSnapGuides();
 
     //props的变化会重新初始化
     watch(
@@ -216,20 +263,25 @@ export default {
       () => {
         // state.maxPoints = maxPoints;
         map.removeInteraction(draw);
+        // map.removeInteraction(snapi);
         draw = createDraw();
-        map.addInteraction(draw);
-        draw.changed();
 
+        map.addInteraction(draw);
+        // map.addInteraction(snapi);
+
+        draw.changed();
         map.changed();
       }
     );
 
     onMounted(() => {
       map.addInteraction(draw);
+      //   map.addInteraction(snapi);
     });
 
     onUnmounted(() => {
       map.removeInteraction(draw);
+      //   map.removeInteraction(snapi);
     });
 
     provide("stylable", draw);
