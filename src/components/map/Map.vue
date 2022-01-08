@@ -11,7 +11,7 @@ import Map from "ol/Map";
 import usePropsAsObjectProperties from "@/composables/usePropsAsObjectProperties";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
 import DragPan from "ol/interaction/DragPan";
-import { always } from "ol/events/condition";
+// import { always } from "ol/events/condition";
 
 export default {
   name: "ol-map",
@@ -26,11 +26,11 @@ export default {
       map.setProperties(properties);
     });
 
-    let drapani = new DragPan({ condition: always });
+    // let drapani = new DragPan({ condition: always });
 
     onMounted(() => {
       map.setTarget(mapRef.value);
-
+      console.log("我是map我改变了");
       //   document.onmousedown = function (e) {
       //     if (e.button == 2) {
       //       console.log("你点了右键");
@@ -73,11 +73,14 @@ export default {
       //       //向上滚动
       //     }
       //   }
-      map.addInteraction(drapani);
+      //   map.addInteraction(drapani);
     });
 
     onUnmounted(() => {
-      map.removeInteraction(drapani);
+      console.log("------------------------------------");
+      console.log("我卸载了");
+      console.log("------------------------------------");
+      //   map.removeInteraction(drapani);
       map.setTarget(null);
       map = null;
     });
@@ -139,7 +142,18 @@ export default {
       .find((interaction) => {
         return interaction instanceof DoubleClickZoom;
       });
+
     map.removeInteraction(dblClickInteraction);
+
+    // 删除默认的双击事件
+    const DragPanInteraction = map
+      .getInteractions()
+      .getArray()
+      .find((interaction) => {
+        return interaction instanceof DragPan;
+      });
+
+    map.removeInteraction(DragPanInteraction);
 
     // // 删除默认的双击事件
     // const shiftDragZoomInteraction = map
