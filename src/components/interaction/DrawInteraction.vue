@@ -19,7 +19,6 @@ import Draw from "ol/interaction/Draw";
 import Polygon from "ol/geom/Polygon";
 import DrawRegular from "ol-ext//interaction/DrawRegular";
 import SnapGuides from "ol-ext//interaction/SnapGuides";
-
 import VectorImage from "ol/layer/VectorImage";
 
 // import Modify from "ol/interaction/Modify";
@@ -48,6 +47,7 @@ export default {
       freehandCondition,
       wrapX,
       sides,
+      isGuide,
     } = toRefs(props);
 
     let state = reactive({
@@ -79,7 +79,7 @@ export default {
       } else if (type.value === "Rhomboid") {
         state.maxPoints = 3;
         state.dtype = "Polygon";
-        state.dgeometryFunction = function(coordinates, geometry) {
+        state.dgeometryFunction = function (coordinates, geometry) {
           let pointers = coordinates[0];
           // 第一个点
           let x1 = pointers[0] ? pointers[0][0] : null;
@@ -189,6 +189,12 @@ export default {
       let snapi = new SnapGuides({
         vectorClass: VectorImage,
       });
+      snapi.setDrawInteraction(draw);
+      map.addInteraction(snapi);
+      console.log(isGuide.value);
+      if (type.value == "Rectangle" || !isGuide.value) {
+        map.removeInteraction(snapi);
+      }
 
       //   console.log("------------------------------------");
       //   console.log(map.getView().getProjection());
@@ -210,8 +216,6 @@ export default {
       //   map.addInteraction(modi);
 
       //   snapi.setModifyInteraction(modi);
-      snapi.setDrawInteraction(draw);
-      map.addInteraction(snapi);
 
       draw.on("drawstart", (event) => {
         emit("drawstart", event);
@@ -259,6 +263,7 @@ export default {
         freehand,
         freehandCondition,
         wrapX,
+        isGuide,
       ],
       () => {
         // state.maxPoints = maxPoints;
@@ -283,10 +288,14 @@ export default {
       map.removeInteraction(draw);
       //   map.removeInteraction(snapi);
     });
-
+    provide("draw", draw);
     provide("stylable", draw);
   },
   props: {
+    isGuide: {
+      type: Boolean,
+      default: true,
+    },
     type: {
       type: String,
       required: true,

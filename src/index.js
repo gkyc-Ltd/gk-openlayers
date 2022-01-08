@@ -6,7 +6,7 @@ import {
   Geometries,
   Styles,
   Interactions,
-  Animations
+  Animations,
 } from "./components";
 
 import "ol/ol.css";

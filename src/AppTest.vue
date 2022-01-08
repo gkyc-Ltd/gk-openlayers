@@ -150,7 +150,8 @@
       <ol-context-menu :items="contextMenuItems" />
 
       <!-- 框选 -->
-      <!-- <ol-interaction-dragbox /> -->
+      <!-- <ol-interaction-dragbox />     :condintion="condintionDrawpan  v-if="condintionDrawpan""-->
+      <ol-interaction-drawpan ref="drawpanRef" :condition="condintionDrawpan" />
 
       <ol-interaction-undoredo @undo="onundo" ref="undoredoInteraction" />
       <!-- <ol-interaction-dragrotatezoom /> -->
@@ -192,7 +193,11 @@
             :type="drawType"
             @drawend="drawend"
             @drawstart="drawstart"
+            ref="drawRef"
+            :isGuide="true"
           />
+          <!-- <ol-interaction-snapguides :drawType="drawType" />
+          </ol-interaction-draw> -->
 
           <!-- <ol-interaction-drawregular v-if="drawEnable && sides" :sides="sides"/> -->
 
@@ -229,7 +234,7 @@ import { Fill, Stroke, Style, Text } from "ol/style";
 // import DoubleClickZoom from "ol/interaction/DoubleClickZoom";
 // import DragPan from "ol/interaction/DragPan";
 import * as coordinateX from "ol/coordinate";
-
+import { always, doubleClick } from "ol/events/condition";
 // import { create } from 'ol/transform'
 // import { circular as circularPolygon } from 'ol/geom/Polygon';
 
@@ -646,7 +651,6 @@ export default {
       //move coordinates some distance
       console.log(coordinateX);
       coordinateX.add(coordinate2, center.value[0], center.value[1]);
-
       // use setGeometry to move it
       // selectedFeatures.value.array_[0].setGeometry(new coordinateX());
       // selectedFeatures.value.array_[0].getGeometry().translate(center.value);
@@ -733,30 +737,63 @@ export default {
     });
     const refMap = ref(null);
 
-    // function disableMove() {
+    // async function disableMove() {
     //   refMap.value.map.getInteractions().forEach(function (element) {
+    //     // console.log(element);
     //     if (element instanceof DragPan) {
-    //       element.setActive(false);
+    //       console.log("xxxxx", element);
+    //       element.setActive(drapanActive.value);
     //     }
     //   });
     // }
 
     const targetMouse = ref(null);
+
+    const drawpanRef = ref(null);
+
+    const condintionDrawpan = ref(doubleClick);
+
     onMounted(() => {
       //   disableMove();
+      //   drawpanRef.value.drawpan.setActive(false);
+
+      document.onmousedown = function (e) {
+        if (e.button == 2) {
+          condintionDrawpan.value = doubleClick;
+          console.log("你点了右键");
+        } else if (e.button == 0) {
+          condintionDrawpan.value = doubleClick;
+          console.log("你点了左键");
+        } else if (e.button == 1) {
+          console.log("你点了滚轮");
+          //   drawpanRef.value.drawpan.setActive(true);
+          //   refMap.value.map.changed();
+          //   console.log(drawpanRef.value.drawpan.getActive());
+          condintionDrawpan.value = always;
+          //   refMap.value.map.updateSize();
+        }
+      };
+      document.onmouseup = function () {
+        console.log("end", doubleClick, always);
+        // drawpanRef.value.drawpan.setActive(false);
+        // condintionDrawpan.value = doubleClick;
+      };
 
       targetMouse.value = document.getElementById("mouse-position2");
       vectorsource.value.source.addFeatures(zones.value);
       createLabelAll();
+
       // layerList.value.push(jawgLayer.value.tileLayer);
       // layerList.value.push(osmLayer.value.tileLayer);
       // console.log(layerList.value)
       // console.log(animationPath.value)
     });
-
+    const drawRef = ref();
     return {
+      drawRef,
+      condintionDrawpan,
       refMap,
-
+      drawpanRef,
       targetMouse,
       saveGeoJson,
       changeHandleType,

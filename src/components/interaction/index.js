@@ -9,6 +9,9 @@ import UndoredoInteraction from "./UndoredoInteraction.vue";
 import DefaultsdoInteraction from "./DefaultsdoInteraction.vue";
 import DragBoxInteraction from "./DragBoxInteraction.vue";
 
+import DragPanInteraction from "./DragPanInteraction.vue";
+import SnapGuidesInteraction from "./SnapGuidesInteraction.vue";
+
 function install(app) {
   if (install.installed) {
     return;
@@ -25,6 +28,8 @@ function install(app) {
   app.component(UndoredoInteraction.name, UndoredoInteraction);
   app.component(DefaultsdoInteraction.name, DefaultsdoInteraction);
   app.component(DragBoxInteraction.name, DragBoxInteraction);
+  app.component(DragPanInteraction.name, DragPanInteraction);
+  app.component(SnapGuidesInteraction.name, SnapGuidesInteraction);
 
   app.component(
     DragRotateAndZoomInteraction.name,
@@ -45,5 +50,7 @@ export {
   TransformInteraction,
   DragRotateAndZoomInteraction,
   UndoredoInteraction,
-  DragBoxInteraction
+  DragBoxInteraction,
+  DragPanInteraction,
+  SnapGuidesInteraction,
 };
