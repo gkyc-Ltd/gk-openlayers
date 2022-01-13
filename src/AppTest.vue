@@ -71,7 +71,7 @@
       <ol-layerswitcherimage-control />
 
       <ol-tile-layer ref="osmLayer" title="OSM">
-        <ol-source-osm />
+        <ol-source-osm url="http://192.168.1.27:5000/global-1-11/{z}/{x}/{y}" />
       </ol-tile-layer>
 
       <ol-control-bar className="barclass">
@@ -665,7 +665,7 @@ export default {
         createLabelStyle(event.selected[0], true); //改变当前fetaure样式
         event.selected[0].changed();
         // createLabelAll()
-        // let m_center = transform(center.value, 'EPSG:3857', 'EPSG:4326');
+        // let m_center = transform(center.value, 'EPSG:4326', 'EPSG:4326');
         // console.log(m_center);
         // selectedCityPosition.value = m_center
         selectedCityName.value = event.selected[0].values_.name;

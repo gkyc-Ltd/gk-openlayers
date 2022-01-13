@@ -24,6 +24,8 @@ import VectorImage from "ol/layer/VectorImage";
 // import Modify from "ol/interaction/Modify";
 // import { transform } from "ol/proj";
 
+import { rect } from "./helper.js";
+
 export default {
   name: "ol-interaction-draw",
   emits: ["drawstart", "drawend"],
@@ -53,7 +55,7 @@ export default {
     let state = reactive({
       maxPoints: 0,
       dtype: "",
-      dgeometryFunction: () => {},
+      geometryFunction: () => {},
       dsides: 0,
     });
 
@@ -61,17 +63,13 @@ export default {
       state.dtype = type.value;
       state.dsides = sides.value;
       state.maxPoints = maxPoints.value;
-
-      state.dgeometryFunction = type.geometryFunction;
+      state.geometryFunction = undefined;
       if (type.value == "Polygon") {
-        // state.dsides = 1;
         state.maxPoints = undefined;
       } else if (type.value == "LineString") {
-        // state.dsides = 1;
         state.maxPoints = 2;
       } else if (type.value == "Circle") {
         state.dsides = 1;
-
         return true;
       } else if (type.value == "Rectangle") {
         state.dsides = 4;
@@ -79,26 +77,14 @@ export default {
       } else if (type.value === "Rhomboid") {
         state.maxPoints = 3;
         state.dtype = "Polygon";
-        state.dgeometryFunction = function (coordinates, geometry) {
+        state.geometryFunction = function (coordinates, geometry) {
           let pointers = coordinates[0];
-          // 第一个点
-          let x1 = pointers[0] ? pointers[0][0] : null;
-          let y1 = pointers[0] ? pointers[0][1] : null;
-          // 第二个点
-          let x2 = pointers[1] ? pointers[1][0] : null;
-          let y2 = pointers[1] ? pointers[1][1] : null;
-          // 第三个点
-          let x3 = pointers[2] ? pointers[2][0] : null;
-          let y3 = pointers[2] ? pointers[2][1] : null;
-
-          // 第四个点
-          let x4 = null;
-          let y4 = null;
-          x4 = x1 - x2 + (x3 - x4);
-          y4 = y1 - y2 + y3;
+          //非90度自动矫正第三个点
+          if (pointers[2]) {
+            let arr = rect(pointers[0], pointers[1], pointers[2]);
+            pointers = [...arr];
+          }
           let newCoordinates = [...pointers];
-
-          newCoordinates.push([x4, y4]); // 添加及计算的第四个点。
           newCoordinates.push(newCoordinates[0].slice()); // 添加起始点闭合画图
           if (!geometry) {
             geometry = new Polygon([newCoordinates]);
@@ -108,49 +94,6 @@ export default {
               geometry.setCoordinates([newCoordinates]); // 设置线性环的坐标
             }
           }
-          //   // 开始坐标
-          //   var start = coordinates[0];
-          //   // 结束坐标
-          //   var end = coordinates[1];
-
-          //   //如果geometry对象不存在或者为空，则创建
-          //   if (!geometry) {
-          //     //多面几何图形下设置
-          //     geometry = new Polygon([
-          //       [start, [start[0], end[1]], end, [end[0], start[1]], start]
-          //     ]);
-          //   }
-          //   // 根据开始与结束坐标绘制,从起始点，回到起始点
-          //   //   geometry.setCoordinates([[
-          //   //     start, [start[0] - 0.00001, end[1]], end, [end[0] + 0.00001, start[1]], start]
-          //   //   ]);
-          //   const view = map.getView();
-          //   const zoom = view.getZoom();
-          //   let grade = 0.00001;
-
-          //   if (zoom < 10) {
-          //     grade = 10;
-          //   } else if (zoom > 10 && zoom < 15) {
-          //     grade = 0.1;
-          //   } else if (zoom > 15 && zoom <= 20) {
-          //     grade = 0.001;
-          //   } else if (zoom > 20 && zoom <= 25) {
-          //     grade = 0.0001;
-          //   }
-
-          //   console.log("------------------------------------");
-          //   console.log(zoom);
-          //   console.log("------------------------------------");
-
-          //   geometry.setCoordinates([
-          //     [
-          //       start,
-          //       [start[0] + grade / zoom, end[1]],
-          //       end,
-          //       [end[0] - grade / zoom, start[1]],
-          //       start
-          //     ]
-          //   ]);
           // 返回几何图形坐标进行渲染
           return geometry;
         };
@@ -160,7 +103,6 @@ export default {
 
     let createDraw = () => {
       const isExt = getType();
-      console.log("wwwwwwwwww", state.maxPoints);
       let draw;
       if (isExt) {
         draw = new DrawRegular({
@@ -177,7 +119,7 @@ export default {
           stopClick: stopClick.value,
           maxPoints: state.maxPoints,
           finishCondition: finishCondition.value,
-          geometryFunction: state.dgeometryFunction,
+          geometryFunction: state.geometryFunction,
           geometryName: geometryName.value,
           condition: condition.value,
           freehand: freehand.value,
@@ -186,6 +128,7 @@ export default {
         });
       }
 
+      //绘制引导线
       let snapi = new SnapGuides({
         vectorClass: VectorImage,
       });
@@ -195,11 +138,6 @@ export default {
       if (type.value == "Rectangle" || !isGuide.value) {
         map.removeInteraction(snapi);
       }
-
-      //   console.log("------------------------------------");
-      //   console.log(map.getView().getProjection());
-      //   console.log("------------------------------------");
-
       //   var p1 = transform(
       //     [0 || 0, 1],
       //     "EPSG:4326",
@@ -211,11 +149,6 @@ export default {
       //     map.getView().getProjection()
       //   );
       //   snapi.addGuide([p1, p2]);
-      //   const vectorLayer = inject("vectorLayer");
-      //   var modi = new Modify({ source: vectorLayer.value.getSource() });
-      //   map.addInteraction(modi);
-
-      //   snapi.setModifyInteraction(modi);
 
       draw.on("drawstart", (event) => {
         emit("drawstart", event);
@@ -237,7 +170,6 @@ export default {
     //   snapi = new SnapGuides({
     //     vectorClass: VectorImage,
     //   });
-
     //   snapi.setDrawInteraction(draw);
     //   // snapi.setModifyInteraction(modi);
     // };
