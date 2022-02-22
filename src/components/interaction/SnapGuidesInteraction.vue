@@ -27,6 +27,36 @@ export default {
     };
     let snapGuides = createsnapGuides();
 
+    //绘制引导线
+    //   let snapi = new SnapGuides({
+    //     vectorClass: VectorImage,
+    //   });
+    //   snapi.setDrawInteraction(draw);
+    //   map.addInteraction(snapi);
+    //   console.log(isGuide.value);
+    //   if (type.value == "Rectangle" || !isGuide.value) {
+    //     map.removeInteraction(snapi);
+    //   }
+    //   var p1 = transform(
+    //     [0 || 0, 1],
+    //     "EPSG:4326",
+    //     map.getView().getProjection()
+    //   );
+    //   var p2 = transform(
+    //     [0 || 0, -1],
+    //     "EPSG:4326",
+    //     map.getView().getProjection()
+    //   );
+    //   snapi.addGuide([p1, p2]);
+    // let createSnapGuides = () => {
+    //   snapi = new SnapGuides({
+    //     vectorClass: VectorImage,
+    //   });
+    //   snapi.setDrawInteraction(draw);
+    //   // snapi.setModifyInteraction(modi);
+    // };
+    // let snapi = createSnapGuides();
+
     watch(properties, () => {
       map.removeInteraction(snapGuides);
       snapGuides = createsnapGuides();

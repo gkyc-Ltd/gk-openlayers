@@ -15,14 +15,8 @@ import {
 } from "vue";
 
 import Draw from "ol/interaction/Draw";
-//import Style from 'ol/style/Style';
 import Polygon from "ol/geom/Polygon";
 import DrawRegular from "ol-ext//interaction/DrawRegular";
-import SnapGuides from "ol-ext//interaction/SnapGuides";
-import VectorImage from "ol/layer/VectorImage";
-
-// import Modify from "ol/interaction/Modify";
-// import { transform } from "ol/proj";
 
 import { rect } from "./helper.js";
 
@@ -128,28 +122,6 @@ export default {
         });
       }
 
-      //绘制引导线
-      let snapi = new SnapGuides({
-        vectorClass: VectorImage,
-      });
-      snapi.setDrawInteraction(draw);
-      map.addInteraction(snapi);
-      console.log(isGuide.value);
-      if (type.value == "Rectangle" || !isGuide.value) {
-        map.removeInteraction(snapi);
-      }
-      //   var p1 = transform(
-      //     [0 || 0, 1],
-      //     "EPSG:4326",
-      //     map.getView().getProjection()
-      //   );
-      //   var p2 = transform(
-      //     [0 || 0, -1],
-      //     "EPSG:4326",
-      //     map.getView().getProjection()
-      //   );
-      //   snapi.addGuide([p1, p2]);
-
       draw.on("drawstart", (event) => {
         emit("drawstart", event);
       });
@@ -166,17 +138,7 @@ export default {
       return draw;
     };
 
-    // let createSnapGuides = () => {
-    //   snapi = new SnapGuides({
-    //     vectorClass: VectorImage,
-    //   });
-    //   snapi.setDrawInteraction(draw);
-    //   // snapi.setModifyInteraction(modi);
-    // };
-
     let draw = createDraw();
-
-    // let snapi = createSnapGuides();
 
     //props的变化会重新初始化
     watch(
@@ -198,14 +160,9 @@ export default {
         isGuide,
       ],
       () => {
-        // state.maxPoints = maxPoints;
         map.removeInteraction(draw);
-        // map.removeInteraction(snapi);
         draw = createDraw();
-
         map.addInteraction(draw);
-        // map.addInteraction(snapi);
-
         draw.changed();
         map.changed();
       }
@@ -213,12 +170,10 @@ export default {
 
     onMounted(() => {
       map.addInteraction(draw);
-      //   map.addInteraction(snapi);
     });
 
     onUnmounted(() => {
       map.removeInteraction(draw);
-      //   map.removeInteraction(snapi);
     });
     provide("draw", draw);
     provide("stylable", draw);
