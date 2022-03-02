@@ -52,27 +52,12 @@ export default {
         transform.value.select();
         e.features.forEach(function (f) {
           transform.value.select(f, true);
-          console.log("---------44---------------------------");
-          console.log(f);
-          console.log(f.getId());
-          console.log("------------------------------------");
           f.setId(f.ol_uid);
-          console.log("--------------66----------------------");
-          console.log(f);
-          console.log(f.getId());
-          console.log("------------------------------------");
         });
         emit("pastend", e);
       });
       return copypaste;
     });
-
-    // watch(copypaste, (newVal, oldVal) => {
-    //   map.removeInteraction(oldVal);
-    //   map.addInteraction(newVal);
-
-    //   map.changed();
-    // });
 
     watch(transform, (newVal, oldVal) => {
       map.removeInteraction(oldVal);

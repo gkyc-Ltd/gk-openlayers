@@ -71,7 +71,7 @@
       <ol-layerswitcherimage-control />
 
       <ol-tile-layer ref="osmLayer" title="OSM">
-        <ol-source-osm url="http://192.168.1.27:5000/global-1-11/{z}/{x}/{y}" />
+        <ol-source-osm />
       </ol-tile-layer>
 
       <ol-control-bar className="barclass">
@@ -238,6 +238,7 @@ import { always, doubleClick } from "ol/events/condition";
 // import { create } from 'ol/transform'
 // import { circular as circularPolygon } from 'ol/geom/Polygon';
 
+import GridReference from "ol-ext//control/GridReference";
 // import { transform } from "ol/proj";
 export default {
   setup() {
@@ -252,6 +253,34 @@ export default {
     console.log("-----------------8888-------------------");
     console.log(coordinatex);
     console.log("------------------------------------");
+
+    const mapRef = ref();
+
+    const setGrid = () => {
+      let rr = new GridReference({
+        extent: [
+          25.6064453125, 44.73302734375001, 31.69287109375, 43.04113281250001,
+        ],
+        size: [10, 12],
+        source: osmLayer.value.source,
+        property: "commune",
+      });
+
+      //   // Default index
+      //   rr.getVIndex = function (index) {
+      //     return index;
+      //   };
+      //   rr.getVIndex = function (index) {
+      //     return index;
+      //   };
+      rr.getHIndex = function (index) {
+        console.log("++++++++++++++++++++++++++++", index);
+        return String.fromCharCode(100 + index);
+      };
+
+      // add control
+      refMap.value.map.addControl(rr);
+    };
 
     function saveGeoJson() {
       console.log(state.newFeaturesJson);
@@ -754,6 +783,7 @@ export default {
     const condintionDrawpan = ref(doubleClick);
 
     onMounted(() => {
+      setGrid();
       //   disableMove();
       //   drawpanRef.value.drawpan.setActive(false);
 
@@ -790,6 +820,7 @@ export default {
     });
     const drawRef = ref();
     return {
+      mapRef,
       drawRef,
       condintionDrawpan,
       refMap,

@@ -1,9 +1,9 @@
 <template>
   <ol-map
-    ref="map"
+    ref="mapRef"
     :loadTilesWhileAnimating="true"
     :loadTilesWhileInteracting="true"
-    style="height:800px"
+    style="height: 800px"
   >
     <ol-view
       ref="view"
@@ -39,7 +39,7 @@
         url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ"
       />
     </ol-tile-layer>
-
+    <!-- 
     <ol-control-bar>
       <ol-control-toggle
         :order="0"
@@ -72,8 +72,7 @@
       <ol-control-videorecorder :order="4" @stop="videoStopped">
       </ol-control-videorecorder>
       <ol-control-printdialog :order="5" />
-    </ol-control-bar>
-
+    </ol-control-bar> -->
     <ol-mouseposition-control />
     <ol-fullscreen-control />
     <ol-overviewmap-control>
@@ -264,6 +263,7 @@
 <script>
 import { ref, inject, onMounted } from "vue";
 
+import GridReference from "ol-ext//control/GridReference";
 import markerIcon from "@/assets/marker.png";
 import starIcon from "@/assets/star.png";
 export default {
@@ -299,6 +299,34 @@ export default {
       drawEnable.value = active;
       drawType.value = draw;
     };
+
+    const mapRef = ref();
+
+    // const setGrid = () => {
+    //   console.log("+++++++++++++", mapRef.value.map);
+    //   let rr = new GridReference({
+    //     extent: [
+    //       25.6064453125, 44.73302734375001, 31.69287109375, 43.04113281250001,
+    //     ],
+    //     size: [10, 12],
+    //     source: osmLayer.value.source,
+    //     property: "commune",
+    //   });
+    //   //   // Default index
+    //   //   rr.getVIndex = function (index) {
+    //   //     return index;
+    //   //   };
+    //   //   rr.getVIndex = function (index) {
+    //   //     return index;
+    //   //   };
+    //   rr.getHIndex = function (index) {
+    //     console.log("++++++++++++++++++++++++++++", index);
+    //     return String.fromCharCode(100 + index);
+    //   };
+
+    //   // add control
+    //   mapRef.value.map.addControl(rr);
+    // };
 
     contextMenuItems.value = [
       {
@@ -344,18 +372,12 @@ export default {
       let dash = (2 * Math.PI * radius) / 6;
       let calculatedDash = [0, dash, dash, dash, dash, dash, dash];
 
-      style
-        .getImage()
-        .getStroke()
-        .setLineDash(dash);
+      style.getImage().getStroke().setLineDash(dash);
       style
         .getImage()
         .getStroke()
         .setColor("rgba(" + color + ",0.5)");
-      style
-        .getImage()
-        .getStroke()
-        .setLineDash(calculatedDash);
+      style.getImage().getStroke().setLineDash(calculatedDash);
       style
         .getImage()
         .getFill()
@@ -408,6 +430,12 @@ export default {
     const animationPath = ref(null);
 
     onMounted(() => {
+      mapRef.value.setGrid(
+        [25.6064453125, 44.73302734375001, 31.69287109375, 43.04113281250001],
+        [10, 10],
+        osmLayer.value.source
+      );
+      //   setGrid();
       layerList.value.push(jawgLayer.value.tileLayer);
       layerList.value.push(osmLayer.value.tileLayer);
       console.log(layerList.value);
@@ -430,6 +458,7 @@ export default {
     ];
 
     return {
+      mapRef,
       center,
       projection,
       zoom,

@@ -1,6 +1,6 @@
 {
   "name": "gk-openlayers",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Openlayers Wrapper for Vue3",
   "repository": {
     "type": "git",
@@ -48,7 +48,7 @@
     "jspdf": "^2.3.1",
     "ol": "^6.6.1",
     "ol-contextmenu": "^4.1.0",
-    "ol-ext": "^3.2.19",
+    "ol-ext": "^3.2.22",
     "vue": "^3.0.0"
   },
   "devDependencies": {
