@@ -4,7 +4,6 @@
 
 <script>
 import {
-  provide,
   inject,
   watch,
   onMounted,
@@ -13,13 +12,10 @@ import {
   reactive,
   //computed
 } from "vue";
-
 import Draw from "ol/interaction/Draw";
 import Polygon from "ol/geom/Polygon";
 import DrawRegular from "ol-ext//interaction/DrawRegular";
-
 import { rect } from "./helper.js";
-
 export default {
   name: "ol-interaction-draw",
   emits: ["drawstart", "drawend"],
@@ -44,15 +40,15 @@ export default {
       wrapX,
       sides,
       isGuide,
+      isOpen,
     } = toRefs(props);
-
     let state = reactive({
       maxPoints: 0,
       dtype: "",
       geometryFunction: () => {},
       dsides: 0,
+      _coordinates: [],
     });
-
     const getType = () => {
       state.dtype = type.value;
       state.dsides = sides.value;
@@ -94,8 +90,10 @@ export default {
         return false;
       }
     };
-
     let createDraw = () => {
+      if (!isOpen.value) {
+        return false;
+      }
       const isExt = getType();
       let draw;
       if (isExt) {
@@ -140,6 +138,18 @@ export default {
 
     let draw = createDraw();
 
+    const undoPoint = () => {
+      draw.removeLastPoint();
+    };
+
+    const redoPoint = () => {
+      draw.appendCoordinates([]);
+    };
+
+    const finishDrawing = () => {
+      draw.finishDrawing();
+    };
+
     //props的变化会重新初始化
     watch(
       [
@@ -158,27 +168,43 @@ export default {
         freehandCondition,
         wrapX,
         isGuide,
+        isOpen,
       ],
       () => {
-        map.removeInteraction(draw);
-        draw = createDraw();
-        map.addInteraction(draw);
-        draw.changed();
-        map.changed();
+        if (isOpen.value) {
+          map.removeInteraction(draw);
+          draw = createDraw();
+          map.addInteraction(draw);
+          draw.changed();
+          map.changed();
+        } else {
+          map.removeInteraction(draw);
+          map.changed();
+        }
       }
     );
-
     onMounted(() => {
-      map.addInteraction(draw);
+      if (draw) {
+        map.addInteraction(draw);
+      }
     });
-
     onUnmounted(() => {
-      map.removeInteraction(draw);
+      if (draw) {
+        map.removeInteraction(draw);
+      }
     });
-    provide("draw", draw);
-    provide("stylable", draw);
+    return {
+      draw,
+      undoPoint,
+      redoPoint,
+      finishDrawing,
+    };
   },
   props: {
+    isOpen: {
+      type: Boolean,
+      default: false,
+    },
     isGuide: {
       type: Boolean,
       default: true,
