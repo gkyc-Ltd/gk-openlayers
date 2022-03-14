@@ -1,6 +1,6 @@
 <template>
   <ol-map
-    ref="mapRef"
+    ref="map"
     :loadTilesWhileAnimating="true"
     :loadTilesWhileInteracting="true"
     style="height: 800px"
@@ -10,6 +10,10 @@
       :center="center"
       :rotation="rotation"
       :zoom="zoom"
+      :extent="[
+        139.64378356933594, 35.2825927734375, 139.6698760986328,
+        35.30113220214844,
+      ]"
       :projection="projection"
     />
 
@@ -28,51 +32,45 @@
       v-if="jawgLayer != null"
     >
     </ol-zone-control>
-
+    <!-- 
     <ol-tile-layer ref="osmLayer" title="OSM">
       <ol-source-osm />
+    </ol-tile-layer> -->
+
+    <ol-tile-layer ref="wmtsLayer">
+      <ol-source-wmts
+        :url="'http://192.168.11.4:8087/geoserver/gwc/service/wmts'"
+        format="image/png"
+        :layer="'ftp:JB11_IRS_000002417_002_001_010_L2C'"
+        matrixSet="EPSG:4326"
+        :projection="'EPSG:4326'"
+        :center="[139.65682983398438, 35.29186248779297]"
+      />
     </ol-tile-layer>
 
-    <ol-tile-layer ref="jawgLayer" title="JAWG">
+    <!-- <ol-tile-layer ref="jawgLayer" title="JAWG">
       <ol-source-xyz
         crossOrigin="anonymous"
         url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ"
       />
-    </ol-tile-layer>
-    <!-- 
-    <ol-control-bar>
-      <ol-control-toggle
-        :order="0"
-        html="<i class='fas fa-map-marker'></i>"
-        className="edit"
-        title="Point"
-        :onToggle="(active) => changeDrawType(active, 'Point')"
-      />
-      <ol-control-toggle
-        :order="1"
-        html="<i class='fas fa-draw-polygon'></i>"
-        className="edit"
-        title="Polygon"
-        :onToggle="(active) => changeDrawType(active, 'Polygon')"
-      />
-      <ol-control-toggle
-        :order="2"
-        html="<i class='fas fa-circle'></i>"
-        className="edit"
-        title="Circle"
-        :onToggle="(active) => changeDrawType(active, 'Circle')"
-      />
-      <ol-control-toggle
-        :order="3"
-        html="<i class='fas fa-grip-lines'></i>"
-        className="edit"
-        title="LineString"
-        :onToggle="(active) => changeDrawType(active, 'LineString')"
-      />
-      <ol-control-videorecorder :order="4" @stop="videoStopped">
-      </ol-control-videorecorder>
-      <ol-control-printdialog :order="5" />
-    </ol-control-bar> -->
+    </ol-tile-layer> -->
+
+    <ol-control-toggle
+      :order="0"
+      html="<i class='fas fa-map-marker'></i>"
+      className="edit"
+      title="Point"
+      :onToggle="(active) => changeDrawType(active, 'Polygon')"
+    />
+
+    <ol-control-toggle
+      :order="1"
+      html="<i class='fas fa-draw-polygon'></i>"
+      className="edit"
+      title="Polygon"
+      :onToggle="(active) => changeDrawType(active, 'undo')"
+    />
+
     <ol-mouseposition-control />
     <ol-fullscreen-control />
     <ol-overviewmap-control>
@@ -85,12 +83,12 @@
     <ol-rotate-control />
     <ol-zoom-control />
     <ol-zoomslider-control />
-    <ol-zoomtoextent-control
+    <!-- <ol-zoomtoextent-control
       :extent="[23.906, 42.812, 46.934, 34.597]"
       tipLabel="Fit to Turkey"
-    />
+    /> -->
 
-    <ol-context-menu :items="contextMenuItems" />
+    <!-- <ol-context-menu :items="contextMenuItems" /> -->
     <ol-interaction-dragrotatezoom />
     <ol-interaction-clusterselect @select="featureSelected" :pointRadius="20">
       <ol-style>
@@ -113,16 +111,8 @@
       </ol-style>
     </ol-interaction-select>
 
-    <ol-vector-layer
-      title="AIRPORTS"
-      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
-    >
-      <ol-source-vector
-        ref="cities"
-        url="https://raw.githubusercontent.com/alpers/Turkey-Maps-GeoJSON/master/tr-cities-airports.json"
-        :format="geoJson"
-        :projection="projection"
-      >
+    <ol-vector-layer title="AIRPORTS">
+      <ol-source-vector ref="cities">
         <ol-interaction-modify
           v-if="drawEnable"
           @modifyend="modifyend"
@@ -131,7 +121,7 @@
         </ol-interaction-modify>
 
         <ol-interaction-draw
-          v-if="drawEnable"
+          ref="drawRef"
           :type="drawType"
           @drawend="drawend"
           @drawstart="drawstart"
@@ -218,6 +208,7 @@
     <ol-overlay
       :position="selectedCityPosition"
       v-if="selectedCityName != '' && !drawEnable"
+      positioning="bottom-right"
     >
       <template v-slot="slotProps">
         <div class="overlay-content">
@@ -257,20 +248,25 @@
         </ol-animation-path>
       </ol-source-vector>
     </ol-vector-layer>
+    <ol-webglpoints-layer :style="webglPointsStyle">
+      <ol-source-webglpoints
+        :format="geoJson"
+        url="https://openlayers.org/en/latest/examples/data/geojson/world-cities.geojson"
+      />
+    </ol-webglpoints-layer>
   </ol-map>
 </template>
 
 <script>
 import { ref, inject, onMounted } from "vue";
 
-import GridReference from "ol-ext//control/GridReference";
 import markerIcon from "@/assets/marker.png";
 import starIcon from "@/assets/star.png";
 export default {
   setup() {
     const center = ref([34, 39.13]);
     const projection = ref("EPSG:4326");
-    const zoom = ref(6);
+    const zoom = ref(1);
     const rotation = ref(0);
     const format = inject("ol-format");
 
@@ -293,40 +289,19 @@ export default {
     const view = ref(null);
 
     const drawEnable = ref(false);
-    const drawType = ref("Point");
+    const drawType = ref("Polygon");
 
+    let drawRef = ref();
     const changeDrawType = (active, draw) => {
-      drawEnable.value = active;
-      drawType.value = draw;
+      console.log("------------------------------------");
+      console.log(active);
+      console.log("------------------------------------");
+      //   if (active === "undo") {
+      drawRef.value.draw.removeLastPoint();
+      //   }
+      //   drawEnable.value = active;
+      //   drawType.value = draw;
     };
-
-    const mapRef = ref();
-
-    // const setGrid = () => {
-    //   console.log("+++++++++++++", mapRef.value.map);
-    //   let rr = new GridReference({
-    //     extent: [
-    //       25.6064453125, 44.73302734375001, 31.69287109375, 43.04113281250001,
-    //     ],
-    //     size: [10, 12],
-    //     source: osmLayer.value.source,
-    //     property: "commune",
-    //   });
-    //   //   // Default index
-    //   //   rr.getVIndex = function (index) {
-    //   //     return index;
-    //   //   };
-    //   //   rr.getVIndex = function (index) {
-    //   //     return index;
-    //   //   };
-    //   rr.getHIndex = function (index) {
-    //     console.log("++++++++++++++++++++++++++++", index);
-    //     return String.fromCharCode(100 + index);
-    //   };
-
-    //   // add control
-    //   mapRef.value.map.addControl(rr);
-    // };
 
     contextMenuItems.value = [
       {
@@ -430,12 +405,6 @@ export default {
     const animationPath = ref(null);
 
     onMounted(() => {
-      mapRef.value.setGrid(
-        [25.6064453125, 44.73302734375001, 31.69287109375, 43.04113281250001],
-        [10, 10],
-        osmLayer.value.source
-      );
-      //   setGrid();
       layerList.value.push(jawgLayer.value.tileLayer);
       layerList.value.push(osmLayer.value.tileLayer);
       console.log(layerList.value);
@@ -457,8 +426,34 @@ export default {
       },
     ];
 
+    const webglPointsStyle = {
+      symbol: {
+        symbolType: "circle",
+        size: [
+          "interpolate",
+          ["linear"],
+          ["get", "population"],
+          40000,
+          8,
+          2000000,
+          28,
+        ],
+        color: "#ffed02",
+        rotateWithView: false,
+        offset: [0, 0],
+        opacity: [
+          "interpolate",
+          ["linear"],
+          ["get", "population"],
+          40000,
+          0.6,
+          2000000,
+          0.92,
+        ],
+      },
+    };
     return {
-      mapRef,
+      drawRef,
       center,
       projection,
       zoom,
@@ -491,6 +486,7 @@ export default {
       path,
       animationPath,
       zones,
+      webglPointsStyle,
     };
   },
 };

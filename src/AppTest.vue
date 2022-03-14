@@ -55,7 +55,7 @@
     </div>
 
     <ol-map
-      ref="refMap"
+      ref="mapRef"
       :loadTilesWhileAnimating="true"
       :loadTilesWhileInteracting="true"
       style="height: 800px"
@@ -171,35 +171,48 @@
       >
       </ol-interaction-select>
 
-      <ol-vector-layer
-        :updateWhileInteracting="true"
-        ref="vectorLayer"
-        title="AIRPORTS"
-        preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
-      >
-        <ol-interaction-transform />
-
-        <ol-source-vector ref="vectorsource" @change="change">
-          <!-- :features="zones" -->
-          <!-- <ol-interaction-modify
+      <ol-vector-layer title="AIRPORTS">
+        <ol-source-vector ref="cities">
+          <ol-interaction-modify
             v-if="drawEnable"
             @modifyend="modifyend"
             @modifystart="modifystart"
           >
-          </ol-interaction-modify> -->
+          </ol-interaction-modify>
 
           <ol-interaction-draw
-            v-if="drawEnable"
+            ref="drawRef"
+            :type="drawType"
+            @drawend="drawend"
+            :isOpen="isOpen"
+            @drawstart="drawstart"
+          >
+          </ol-interaction-draw>
+
+          <ol-interaction-snap v-if="drawEnable" />
+        </ol-source-vector>
+
+        <ol-style>
+          <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+          <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
+          <ol-style-circle :radius="7">
+            <ol-style-fill color="blue"></ol-style-fill>
+          </ol-style-circle>
+        </ol-style>
+      </ol-vector-layer>
+
+      <!-- 
+      <ol-vector-layer>
+        <ol-interaction-transform />
+
+        <ol-source-vector ref="vectorsource">
+          <ol-interaction-draw
             :type="drawType"
             @drawend="drawend"
             @drawstart="drawstart"
+            :isOpen="isOpen"
             ref="drawRef"
-            :isGuide="true"
           />
-          <!-- <ol-interaction-snapguides :drawType="drawType" />
-          </ol-interaction-draw> -->
-
-          <!-- <ol-interaction-drawregular v-if="drawEnable && sides" :sides="sides"/> -->
 
           <ol-interaction-snap v-if="drawEnable" />
         </ol-source-vector>
@@ -209,7 +222,7 @@
           <ol-style-fill :color="drawcolor"></ol-style-fill>
           <ol-style-circle :color="drawcolor" radius="2"></ol-style-circle>
         </ol-style>
-      </ol-vector-layer>
+      </ol-vector-layer> -->
 
       <ol-overlay
         :position="selectedCityPosition"
@@ -250,9 +263,6 @@ export default {
     const geoJson = new format.GeoJSON();
 
     const coordinatex = inject("ol-coordinate");
-    console.log("-----------------8888-------------------");
-    console.log(coordinatex);
-    console.log("------------------------------------");
 
     const mapRef = ref();
 
@@ -266,63 +276,16 @@ export default {
         property: "commune",
       });
 
-      //   // Default index
-      //   rr.getVIndex = function (index) {
-      //     return index;
-      //   };
-      //   rr.getVIndex = function (index) {
-      //     return index;
-      //   };
       rr.getHIndex = function (index) {
-        console.log("++++++++++++++++++++++++++++", index);
         return String.fromCharCode(100 + index);
       };
 
       // add control
-      refMap.value.map.addControl(rr);
+      mapRef.value.map.addControl(rr);
     };
 
     function saveGeoJson() {
       console.log(state.newFeaturesJson);
-
-      // let data = {
-      //   otherProperties: {
-
-      //     sampleId: 23,
-
-      //     center: [13005097, 2357611],
-
-      //     zoom: '23132',
-
-      //     layer: 'test:东沙群岛6G',
-
-      //   },
-
-      //   vector: {
-
-      //     crs: {
-
-      //       type: 'name',
-
-      //       properties: {
-
-      //         name: 'EPSG:4326',
-
-      //       },
-
-      //     },
-
-      //     type: 'FeatureCollection',
-
-      //     features: geoJsonFormat.writeFeaturesObject(newSourceFeature).features,
-
-      //   },
-
-      // };
-
-      // postManSlabSaveApi(data);
-
-      // console.log(geoJsonFormat.writeFeaturesObject(newSourceFeature).features);
     }
 
     function createLabelAll() {
@@ -537,7 +500,6 @@ export default {
       if (type === "delete") {
         console.log(item.id);
         let feature = vectorsource.value.source.getFeatureById(item.id);
-
         console.log(feature);
         // console.log(vectorLayer.value);
         vectorsource.value.source.removeFeature(feature);
@@ -568,44 +530,41 @@ export default {
     const undoredoInteraction = ref(null);
 
     const drawEnable = ref(false);
-    const drawType = ref("Point");
+    const drawType = ref("Polygon");
     const map = inject("map");
 
     const drawend = (event) => {
-      // zones.value.push(event.feature)
-      console.log("00");
-      console.log(vectorsource.value.source.getFeatures());
-
-      console.log(event.feature.getGeometry());
-
-      event.feature.setId(event.feature.ol_uid);
-
-      //   console.log(event.feature.getCoordinates())
-
-      selectedFeatures.value.push(event.feature);
+      //   console.log(vectorsource.value.source.getFeatures());
+      //   console.log(event.feature.getGeometry());
+      //   event.feature.setId(event.feature.ol_uid);
+      //   selectedFeatures.value.push(event.feature);
     };
 
+    const isOpen = ref(false);
+    const drawRef = ref();
     const changeHandleType = (name, type) => {
       console.log(undoredoInteraction);
-
+      isOpen.value = true;
       if (type) {
         drawEnable.value = true;
-
         drawType.value = type;
       } else {
         drawEnable.value = false;
-
         console.log(name);
-
         if (name === "撤销") {
           console.log(undoredoInteraction.value.undoredo.undo);
-
-          undoredoInteraction.value.undoredo.undo();
+          console.log(drawRef);
+          drawRef.value.undoPoint();
+          //   mapRef.value.map.changed();
+          //   mapRef.value.map.updateSize();
+          //drawRef.value.draw.changed();
+          //mapRef.value.updateSize();
+          //undoredoInteraction.value.undoredo.undo();
         }
 
-        if (name === "恢复") {
-          undoredoInteraction.value.undoredo.redo();
-        }
+        // if (name === "恢复") {
+        //   undoredoInteraction.value.undoredo.redo();
+        // }
       }
     };
 
@@ -631,37 +590,10 @@ export default {
       drawType.value = draw;
     };
 
-    contextMenuItems.value = [
-      {
-        text: "Center map here",
-        classname: "some-style-class", // add some CSS rules
-        callback: (val) => {
-          view.value.setCenter(val.coordinate);
-        }, // `center` is your callback function
-      },
-      {
-        text: "Add a Marker",
-        classname: "some-style-class", // you can add this icon with a CSS class
-        // instead of `icon` property (see next line)
-        icon: markerIcon, // this can be relative or absolute
-        callback: (val) => {
-          console.log(val);
-          let feature = new Feature({
-            geometry: new Geom.Point(val.coordinate),
-          });
-          vectorsource.value.source.addFeature(feature);
-        },
-      },
-      "-", // this is a separator
-    ];
-
     function change(item) {
       state.newFeatures = item;
       state.newFeaturesJson = geoJson.writeFeaturesObject(item).features;
       state.newFeaturesObject = geoJson.writeFeaturesObject(item);
-
-      //   createLabelAll()
-
       console.log(state.newFeaturesJson);
     }
 
@@ -764,10 +696,9 @@ export default {
     watchEffect(() => {
       console.log();
     });
-    const refMap = ref(null);
 
     // async function disableMove() {
-    //   refMap.value.map.getInteractions().forEach(function (element) {
+    //   mapRef.value.map.getInteractions().forEach(function (element) {
     //     // console.log(element);
     //     if (element instanceof DragPan) {
     //       console.log("xxxxx", element);
@@ -797,10 +728,10 @@ export default {
         } else if (e.button == 1) {
           console.log("你点了滚轮");
           //   drawpanRef.value.drawpan.setActive(true);
-          //   refMap.value.map.changed();
+          //   mapRef.value.map.changed();
           //   console.log(drawpanRef.value.drawpan.getActive());
           condintionDrawpan.value = always;
-          //   refMap.value.map.updateSize();
+          //   mapRef.value.map.updateSize();
         }
       };
       document.onmouseup = function () {
@@ -818,12 +749,12 @@ export default {
       // console.log(layerList.value)
       // console.log(animationPath.value)
     });
-    const drawRef = ref();
+
     return {
+      isOpen,
       mapRef,
       drawRef,
       condintionDrawpan,
-      refMap,
       drawpanRef,
       targetMouse,
       saveGeoJson,
