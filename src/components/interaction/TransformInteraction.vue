@@ -123,12 +123,14 @@ export default {
 
     provide("stylable", transform);
     provide("stylable", copypaste);
+
+    return { transform };
   },
   props: {
-    enableRotatedTransform: {
-      type: Boolean,
-      default: false,
-    },
+    // enableRotatedTransform: {
+    //   type: Boolean,
+    //   default: false,
+    // },
     condition: {
       type: Function,
     },

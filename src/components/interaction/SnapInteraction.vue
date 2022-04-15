@@ -1,3 +1,11 @@
+<!--
+ * @Author: ypc
+ * @Date: 2021-10-29 18:06:50
+ * @LastEditors: ypc
+ * @LastEditTime: 2022-04-15 15:01:53
+ * @Description: file content
+ * @FilePath: \gk-openlayers-main\src\components\interaction\SnapInteraction.vue
+-->
 <template lang="">
   <slot></slot>
 </template>
@@ -39,6 +47,7 @@ export default {
     onUnmounted(() => {
       map.removeInteraction(snap);
     });
+    return { snap };
   },
   props: {
     vertex: {

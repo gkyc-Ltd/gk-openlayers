@@ -88,6 +88,7 @@ export default {
     });
 
     provide("stylable", modify);
+    return { modify };
   },
   props: {
     condition: {
