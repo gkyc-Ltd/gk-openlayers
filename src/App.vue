@@ -5,26 +5,19 @@
     :loadTilesWhileInteracting="true"
     style="height: 800px"
   >
+    <!-- :center="[-180.0, 90.0]" -->
     <ol-view
       ref="view"
-      :center="center"
       :rotation="rotation"
-      :zoom="zoom"
-      :extent="[
-        139.64378356933594, 35.2825927734375, 139.6698760986328,
-        35.30113220214844,
-      ]"
       :projection="projection"
+      :center="[110.10111515529255, 0.9045823915335416]"
     />
-
     <ol-swipe-control
       ref="swipeControl"
       v-if="layerList.length > 0"
       :layerList="layerList"
     />
-
     <ol-layerswitcherimage-control />
-
     <ol-zone-control
       :zones="zones"
       :projection="projection"
@@ -32,29 +25,20 @@
       v-if="jawgLayer != null"
     >
     </ol-zone-control>
-    <!-- 
+
     <ol-tile-layer ref="osmLayer" title="OSM">
       <ol-source-osm />
-    </ol-tile-layer> -->
+    </ol-tile-layer>
 
     <ol-tile-layer ref="wmtsLayer">
       <ol-source-wmts
-        :url="'http://192.168.11.4:8087/geoserver/gwc/service/wmts'"
+        :url="'http://192.168.12.1:8087/geoserver/gwc/service/wmts'"
         format="image/png"
-        :layer="'ftp:JB11_IRS_000002417_002_001_010_L2C'"
-        matrixSet="EPSG:4326"
+        :layer="'testGF3:GF3_MYN_SL_024294_E127'"
+        :matrixSet="'EPSG:4326'"
         :projection="'EPSG:4326'"
-        :center="[139.65682983398438, 35.29186248779297]"
       />
     </ol-tile-layer>
-
-    <!-- <ol-tile-layer ref="jawgLayer" title="JAWG">
-      <ol-source-xyz
-        crossOrigin="anonymous"
-        url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ"
-      />
-    </ol-tile-layer> -->
-
     <ol-control-toggle
       :order="0"
       html="<i class='fas fa-map-marker'></i>"
@@ -62,7 +46,6 @@
       title="Point"
       :onToggle="(active) => changeDrawType(active, 'Polygon')"
     />
-
     <ol-control-toggle
       :order="1"
       html="<i class='fas fa-draw-polygon'></i>"
@@ -83,187 +66,116 @@
     <ol-rotate-control />
     <ol-zoom-control />
     <ol-zoomslider-control />
-    <!-- <ol-zoomtoextent-control
-      :extent="[23.906, 42.812, 46.934, 34.597]"
-      tipLabel="Fit to Turkey"
-    /> -->
-
-    <!-- <ol-context-menu :items="contextMenuItems" /> -->
     <ol-interaction-dragrotatezoom />
-    <ol-interaction-clusterselect @select="featureSelected" :pointRadius="20">
-      <ol-style>
-        <ol-style-stroke color="green" :width="5"></ol-style-stroke>
-        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-        <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
-      </ol-style>
-    </ol-interaction-clusterselect>
-
-    <ol-interaction-select
-      @select="featureSelected"
-      :condition="selectCondition"
-      :filter="selectInteactionFilter"
-      v-if="!drawEnable"
-    >
-      <ol-style>
-        <ol-style-stroke color="green" :width="10"></ol-style-stroke>
-        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
-        <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
-      </ol-style>
-    </ol-interaction-select>
-
-    <ol-vector-layer title="AIRPORTS">
-      <ol-source-vector ref="cities">
-        <ol-interaction-modify
-          v-if="drawEnable"
-          @modifyend="modifyend"
-          @modifystart="modifystart"
-        >
-        </ol-interaction-modify>
-
-        <ol-interaction-draw
-          ref="drawRef"
-          :type="drawType"
-          @drawend="drawend"
-          @drawstart="drawstart"
-        >
-        </ol-interaction-draw>
-
-        <ol-interaction-snap v-if="drawEnable" />
-      </ol-source-vector>
-
-      <ol-style>
-        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-        <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
-        <ol-style-circle :radius="7">
-          <ol-style-fill color="blue"></ol-style-fill>
-        </ol-style-circle>
-      </ol-style>
-    </ol-vector-layer>
-
-    <ol-vector-layer
-      :updateWhileAnimating="true"
-      :updateWhileInteracting="true"
-      title="STAR"
-      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/star.png"
-    >
-      <ol-source-vector ref="vectorsource">
-        <ol-animation-shake :duration="2000" :repeat="5">
-          <ol-feature
-            v-for="index in 20"
-            :key="index"
-            :properties="{ id: index }"
-          >
-            <ol-geom-point
-              :coordinates="[
-                getRandomInRange(24, 45, 3),
-                getRandomInRange(35, 41, 3),
-              ]"
-            ></ol-geom-point>
-
-            <ol-style>
-              <ol-style-icon :src="starIcon" :scale="0.1"></ol-style-icon>
-            </ol-style>
-          </ol-feature>
-        </ol-animation-shake>
-      </ol-source-vector>
-    </ol-vector-layer>
-
-    <ol-animated-clusterlayer
-      :animationDuration="500"
-      :distance="40"
-      title="CLUSTER"
-      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/cluster.png"
-    >
-      <ol-source-vector ref="vectorsource">
-        <ol-feature v-for="index in 500" :key="index">
-          <ol-geom-point
-            :coordinates="[
-              getRandomInRange(24, 45, 3),
-              getRandomInRange(35, 41, 3),
-            ]"
-          ></ol-geom-point>
-        </ol-feature>
-      </ol-source-vector>
-
-      <ol-style :overrideStyleFunction="overrideStyleFunction">
-        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
-        <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
-
-        <ol-style-circle :radius="20">
-          <ol-style-stroke
-            color="black"
-            :width="15"
-            :lineDash="[]"
-            lineCap="butt"
-          ></ol-style-stroke>
-          <ol-style-fill color="black"></ol-style-fill>
-        </ol-style-circle>
-
-        <ol-style-text>
-          <ol-style-fill color="white"></ol-style-fill>
-        </ol-style-text>
-      </ol-style>
-    </ol-animated-clusterlayer>
-
-    <ol-overlay
-      :position="selectedCityPosition"
-      v-if="selectedCityName != '' && !drawEnable"
-      positioning="bottom-right"
-    >
-      <template v-slot="slotProps">
-        <div class="overlay-content">
-          {{ selectedCityName }} {{ slotProps }}
-        </div>
-      </template>
-    </ol-overlay>
-
-    <ol-vector-layer>
-      <ol-source-vector>
-        <ol-feature ref="animationPath">
-          <ol-geom-line-string :coordinates="path"></ol-geom-line-string>
-          <ol-style-flowline
-            color="red"
-            color2="yellow"
-            :width="10"
-            :width2="10"
-            :arrow="1"
-            arrowColor="red"
-          />
-        </ol-feature>
-        <ol-animation-path
-          v-if="animationPath"
-          :path="animationPath.feature"
-          :duration="4000"
-          :repeat="10"
-        >
-          <ol-feature>
-            <ol-geom-point :coordinates="path[0]"></ol-geom-point>
-            <ol-style>
-              <ol-style-circle :radius="10">
-                <ol-style-fill color="blue"></ol-style-fill>
-                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
-              </ol-style-circle>
-            </ol-style>
-          </ol-feature>
-        </ol-animation-path>
-      </ol-source-vector>
-    </ol-vector-layer>
-    <ol-webglpoints-layer :style="webglPointsStyle">
-      <ol-source-webglpoints
-        :format="geoJson"
-        url="https://openlayers.org/en/latest/examples/data/geojson/world-cities.geojson"
-      />
-    </ol-webglpoints-layer>
   </ol-map>
 </template>
 
 <script>
 import { ref, inject, onMounted } from "vue";
-
 import markerIcon from "@/assets/marker.png";
 import starIcon from "@/assets/star.png";
+// import { transform, Projection } from "ol/proj";
+// import { addProjection, addCoordinateTransforms } from "ol/proj";
+
+// import proj4 from "proj4";
 export default {
   setup() {
+    const wmtsLayer = ref();
+    const map = ref();
+    onMounted(() => {
+      //   const extent = [
+      //     127.69310244008429, 26.29546282130444, 127.83956576645036,
+      //     26.409667575564956,
+      //   ];
+      //   //let extent = [minx, miny, maxx, maxy]
+      //   map.value.map.on("moveend", (e) => {
+      //     console.log(
+      //       "222222222222222222222222222222222",
+      //       map.value.map.getView().getZoom(),
+      //       map.value.map.getView().getResolution()
+      //     );
+      //   });
+      //   // // // 加入如下代码 处理resolution
+      //   // let resolution = view.value.view.getResolutionForExtent(extent);
+      //   // console.log("resolution++++++++++++++++++++++++++", resolution);
+      //   // view.value.setResolution(resolution);
+      //   view.value.view.fit(
+      //     [
+      //       127.69310244008429, 26.29546282130444, 127.83956576645036,
+      //       26.409667575564956,
+      //     ],
+      //     {
+      //       constrainResolution: false,
+      //       earest: true,
+      //       size: map.value.map.getSize(),
+      //       nearest: true,
+      //     }
+      //   );
+      //   //   console.log(''wmtsLayer.value.tileLayer);
+      //   var projection_3395 = new Projection({
+      //     code: "EPSG:3395",
+      //     extent: [-20026376.39, -15496570.74, 20026376.39, 18764656.23],
+      //     units: "m",
+      //     axisOrientation: "neu",
+      //   });
+      //   proj4.defs(
+      //     "EPSG:3395",
+      //     "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+      //   );
+      //   //结合proj4在ol3中自定义坐标系
+      //   addProjection(projection_3395);
+      //   addCoordinateTransforms(
+      //     "EPSG:4326",
+      //     "EPSG:3395",
+      //     function (coordinate) {
+      //       return proj4("EPSG:4326", "EPSG:3395", coordinate);
+      //     },
+      //     function (coordinate) {
+      //       return proj4("EPSG:3395", "EPSG:4326", coordinate);
+      //     }
+      //   );
+      //   addCoordinateTransforms(
+      //     "EPSG:3857",
+      //     "EPSG:3395",
+      //     function (coordinate) {
+      //       return proj4("EPSG:3857", "EPSG:3395", coordinate);
+      //     },
+      //     function (coordinate) {
+      //       return proj4("EPSG:3395", "EPSG:3857", coordinate);
+      //     }
+      //   );
+      //   console.log(
+      //     "坐标系转换" + transform([118, 32], "EPSG:4326", "EPSG:3395")
+      //   );
+      //定义3395坐标系，且与其他4326,3857的互相转换
+      // proj4.defs("EPSG:3395","+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs");
+      //   var google = new Projection("EPSG:32649"),
+      //     latlon = new Projection("EPSG:4326");
+      //   console.log(
+      //     "+++++++++++++++++++++++++++++++++",
+      //     transform(
+      //       [392681.723649657, 93672.95605338032],
+      //       "EPSG:3857",
+      //       "EPSG:4326"
+      //     )
+      //   );
+      // transforming the location to the right coordinate system
+      //   var location = new toLonLat(10, 10).
+      //   console.log("-------------------------------------", location);
+      //   layerList.value.push(osmLayer.value.tileLayer);
+      //   console.log(
+      //     "---------------------------",
+      //     transform(
+      //       [392681.723649657, 93672.95605338032],
+      //       "EPSG:6326",
+      //       "EPSG:4326"
+      //     )
+      //   );
+      //   var proj = new Projection("EPSG:4326");
+      //   console.log(layerList.value);
+      //   console.log(animationPath.value);
+    });
+
     const center = ref([34, 39.13]);
     const projection = ref("EPSG:4326");
     const zoom = ref(1);
@@ -404,13 +316,6 @@ export default {
     ]);
     const animationPath = ref(null);
 
-    onMounted(() => {
-      layerList.value.push(jawgLayer.value.tileLayer);
-      layerList.value.push(osmLayer.value.tileLayer);
-      console.log(layerList.value);
-      console.log(animationPath.value);
-    });
-
     const zones = [
       {
         title: "Turkey",
@@ -453,6 +358,7 @@ export default {
       },
     };
     return {
+      wmtsLayer,
       drawRef,
       center,
       projection,
@@ -469,6 +375,7 @@ export default {
       contextMenuItems,
       vectorsource,
       view,
+      map,
       selectInteactionFilter,
       drawstart,
       drawend,
