@@ -70,3 +70,19 @@ Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
 ## License
 
 **MIT** (c) Melih Altıntaş
+
+##  外网发布
+build
+- 删除 publishConfig 
+clear_taobao 
+npm  login  qq199515 qq985213654~  one-Time
+npm publish
+
+## 内网发布
+-publishConfig
+
+
+
+
+
+
