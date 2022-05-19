@@ -123,6 +123,7 @@ export default {
 
     provide("stylable", transform);
     provide("stylable", copypaste);
+    return { transform };
   },
   props: {
     enableRotatedTransform: {
@@ -160,6 +161,10 @@ export default {
     keepAspectRatio: {
       type: Function,
       default: always,
+    },
+    keepRectangle: {
+      type: Boolean,
+      default: true,
     },
     translate: {
       type: Boolean,
