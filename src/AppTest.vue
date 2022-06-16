@@ -413,7 +413,7 @@ export default {
       ],
     });
 
-    var geojsonObject = {
+    const geojsonObject = {
       type: "FeatureCollection",
       crs: {
         type: "name",
@@ -714,7 +714,7 @@ export default {
     const condintionDrawpan = ref(doubleClick);
 
     onMounted(() => {
-      setGrid();
+      //   setGrid(); //设置网格
       //   disableMove();
       //   drawpanRef.value.drawpan.setActive(false);
 
@@ -741,7 +741,7 @@ export default {
       };
 
       targetMouse.value = document.getElementById("mouse-position2");
-      vectorsource.value.source.addFeatures(zones.value);
+      //   vectorsource.value.source.addFeatures(zones.value);
       createLabelAll();
 
       // layerList.value.push(jawgLayer.value.tileLayer);

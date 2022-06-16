@@ -9,6 +9,7 @@
     <ol-view
       ref="view"
       :rotation="rotation"
+      :zoom="zoom"
       :projection="projection"
       :center="[110.10111515529255, 0.9045823915335416]"
     />
@@ -30,29 +31,46 @@
       <ol-source-osm />
     </ol-tile-layer>
 
-    <ol-tile-layer ref="wmtsLayer">
-      <ol-source-wmts
-        :url="'http://192.168.12.1:8087/geoserver/gwc/service/wmts'"
-        format="image/png"
-        :layer="'testGF3:GF3_MYN_SL_024294_E127'"
-        :matrixSet="'EPSG:4326'"
-        :projection="'EPSG:4326'"
+    <ol-tile-layer ref="jawgLayer" title="JAWG">
+      <ol-source-xyz
+        crossOrigin="anonymous"
+        url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ"
       />
     </ol-tile-layer>
-    <ol-control-toggle
-      :order="0"
-      html="<i class='fas fa-map-marker'></i>"
-      className="edit"
-      title="Point"
-      :onToggle="(active) => changeDrawType(active, 'Polygon')"
-    />
-    <ol-control-toggle
-      :order="1"
-      html="<i class='fas fa-draw-polygon'></i>"
-      className="edit"
-      title="Polygon"
-      :onToggle="(active) => changeDrawType(active, 'undo')"
-    />
+    <!-- 
+    <ol-control-bar>
+      <ol-control-toggle
+        :order="0"
+        html="<i class='fas fa-map-marker'></i>"
+        className="edit"
+        title="Point"
+        :onToggle="(active) => changeDrawType(active, 'Point')"
+      />
+      <ol-control-toggle
+        :order="1"
+        html="<i class='fas fa-draw-polygon'></i>"
+        className="edit"
+        title="Polygon"
+        :onToggle="(active) => changeDrawType(active, 'Polygon')"
+      />
+      <ol-control-toggle
+        :order="2"
+        html="<i class='fas fa-circle'></i>"
+        className="edit"
+        title="Circle"
+        :onToggle="(active) => changeDrawType(active, 'Circle')"
+      />
+      <ol-control-toggle
+        :order="3"
+        html="<i class='fas fa-grip-lines'></i>"
+        className="edit"
+        title="LineString"
+        :onToggle="(active) => changeDrawType(active, 'LineString')"
+      />
+      <ol-control-videorecorder :order="4" @stop="videoStopped">
+      </ol-control-videorecorder>
+      <ol-control-printdialog :order="5" />
+    </ol-control-bar> -->
 
     <ol-mouseposition-control />
     <ol-fullscreen-control />
@@ -66,7 +84,185 @@
     <ol-rotate-control />
     <ol-zoom-control />
     <ol-zoomslider-control />
+    <ol-zoomtoextent-control
+      :extent="[23.906, 42.812, 46.934, 34.597]"
+      tipLabel="Fit to Turkey"
+    />
+
+    <ol-context-menu :items="contextMenuItems" />
     <ol-interaction-dragrotatezoom />
+    <ol-interaction-clusterselect @select="featureSelected" :pointRadius="20">
+      <ol-style>
+        <ol-style-stroke color="green" :width="5"></ol-style-stroke>
+        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+        <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
+      </ol-style>
+    </ol-interaction-clusterselect>
+
+    <ol-interaction-select
+      @select="featureSelected"
+      :condition="selectCondition"
+      :filter="selectInteactionFilter"
+      v-if="!drawEnable"
+    >
+      <ol-style>
+        <ol-style-stroke color="green" :width="10"></ol-style-stroke>
+        <ol-style-fill color="rgba(255,255,255,0.5)"></ol-style-fill>
+        <ol-style-icon :src="markerIcon" :scale="0.05"></ol-style-icon>
+      </ol-style>
+    </ol-interaction-select>
+
+    <ol-vector-layer
+      title="AIRPORTS"
+      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
+    >
+      <ol-source-vector
+        ref="cities"
+        url="https://raw.githubusercontent.com/alpers/Turkey-Maps-GeoJSON/master/tr-cities-airports.json"
+        :format="geoJson"
+        :projection="projection"
+      >
+        <ol-interaction-modify
+          v-if="drawEnable"
+          @modifyend="modifyend"
+          @modifystart="modifystart"
+        >
+        </ol-interaction-modify>
+
+        <ol-interaction-draw
+          v-if="drawEnable"
+          :type="drawType"
+          @drawend="drawend"
+          @drawstart="drawstart"
+        >
+        </ol-interaction-draw>
+
+        <ol-interaction-snap v-if="drawEnable" />
+      </ol-source-vector>
+
+      <ol-style>
+        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+        <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
+        <ol-style-circle :radius="7">
+          <ol-style-fill color="blue"></ol-style-fill>
+        </ol-style-circle>
+      </ol-style>
+    </ol-vector-layer>
+
+    <ol-vector-layer
+      :updateWhileAnimating="true"
+      :updateWhileInteracting="true"
+      title="STAR"
+      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/star.png"
+    >
+      <ol-source-vector ref="vectorsource">
+        <ol-animation-shake :duration="2000" :repeat="5">
+          <ol-feature
+            v-for="index in 20"
+            :key="index"
+            :properties="{ id: index }"
+          >
+            <ol-geom-point
+              :coordinates="[
+                getRandomInRange(24, 45, 3),
+                getRandomInRange(35, 41, 3),
+              ]"
+            ></ol-geom-point>
+
+            <ol-style>
+              <ol-style-icon :src="starIcon" :scale="0.1"></ol-style-icon>
+            </ol-style>
+          </ol-feature>
+        </ol-animation-shake>
+      </ol-source-vector>
+    </ol-vector-layer>
+
+    <ol-animated-clusterlayer
+      :animationDuration="500"
+      :distance="40"
+      title="CLUSTER"
+      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/cluster.png"
+    >
+      <ol-source-vector ref="vectorsource">
+        <ol-feature v-for="index in 500" :key="index">
+          <ol-geom-point
+            :coordinates="[
+              getRandomInRange(24, 45, 3),
+              getRandomInRange(35, 41, 3),
+            ]"
+          ></ol-geom-point>
+        </ol-feature>
+      </ol-source-vector>
+
+      <ol-style :overrideStyleFunction="overrideStyleFunction">
+        <ol-style-stroke color="red" :width="2"></ol-style-stroke>
+        <ol-style-fill color="rgba(255,255,255,0.1)"></ol-style-fill>
+
+        <ol-style-circle :radius="20">
+          <ol-style-stroke
+            color="black"
+            :width="15"
+            :lineDash="[]"
+            lineCap="butt"
+          ></ol-style-stroke>
+          <ol-style-fill color="black"></ol-style-fill>
+        </ol-style-circle>
+
+        <ol-style-text>
+          <ol-style-fill color="white"></ol-style-fill>
+        </ol-style-text>
+      </ol-style>
+    </ol-animated-clusterlayer>
+
+    <ol-overlay
+      :position="selectedCityPosition"
+      v-if="selectedCityName != '' && !drawEnable"
+      positioning="bottom-right"
+    >
+      <template v-slot="slotProps">
+        <div class="overlay-content">
+          {{ selectedCityName }} {{ slotProps }}
+        </div>
+      </template>
+    </ol-overlay>
+
+    <ol-vector-layer>
+      <ol-source-vector>
+        <ol-feature ref="animationPath">
+          <ol-geom-line-string :coordinates="path"></ol-geom-line-string>
+          <ol-style-flowline
+            color="red"
+            color2="yellow"
+            :width="10"
+            :width2="10"
+            :arrow="1"
+            arrowColor="red"
+          />
+        </ol-feature>
+        <ol-animation-path
+          v-if="animationPath"
+          :path="animationPath.feature"
+          :duration="4000"
+          :repeat="10"
+        >
+          <ol-feature>
+            <ol-geom-point :coordinates="path[0]"></ol-geom-point>
+            <ol-style>
+              <ol-style-circle :radius="10">
+                <ol-style-fill color="blue"></ol-style-fill>
+                <ol-style-stroke color="blue" :width="2"></ol-style-stroke>
+              </ol-style-circle>
+            </ol-style>
+          </ol-feature>
+        </ol-animation-path>
+      </ol-source-vector>
+    </ol-vector-layer>
+    <ol-webglpoints-layer :style="webglPointsStyle">
+      <ol-source-webglpoints
+        :format="geoJson"
+        url="https://openlayers.org/en/latest/examples/data/geojson/world-cities.geojson"
+      />
+    </ol-webglpoints-layer>
   </ol-map>
 </template>
 
@@ -178,7 +374,7 @@ export default {
 
     const center = ref([34, 39.13]);
     const projection = ref("EPSG:4326");
-    const zoom = ref(1);
+    const zoom = ref(6);
     const rotation = ref(0);
     const format = inject("ol-format");
 
@@ -201,18 +397,11 @@ export default {
     const view = ref(null);
 
     const drawEnable = ref(false);
-    const drawType = ref("Polygon");
+    const drawType = ref("Point");
 
-    let drawRef = ref();
     const changeDrawType = (active, draw) => {
-      console.log("------------------------------------");
-      console.log(active);
-      console.log("------------------------------------");
-      //   if (active === "undo") {
-      drawRef.value.draw.removeLastPoint();
-      //   }
-      //   drawEnable.value = active;
-      //   drawType.value = draw;
+      drawEnable.value = active;
+      drawType.value = draw;
     };
 
     contextMenuItems.value = [
@@ -358,8 +547,6 @@ export default {
       },
     };
     return {
-      wmtsLayer,
-      drawRef,
       center,
       projection,
       zoom,

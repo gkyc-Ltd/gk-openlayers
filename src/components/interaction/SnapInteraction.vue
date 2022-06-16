@@ -1,10 +1,10 @@
 <!--
  * @Author: ypc
- * @Date: 2021-10-29 18:06:50
+ * @Date: 2022-05-05 16:16:11
  * @LastEditors: ypc
- * @LastEditTime: 2022-04-15 15:01:53
+ * @LastEditTime: 2022-06-16 17:51:31
  * @Description: file content
- * @FilePath: \gk-openlayers-main\src\components\interaction\SnapInteraction.vue
+ * @FilePath: \gk-estor-openlayers\src\components\interaction\SnapInteraction.vue
 -->
 <template lang="">
   <slot></slot>
