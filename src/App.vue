@@ -10,10 +10,6 @@
       :center="center"
       :rotation="rotation"
       :zoom="zoom"
-      :extent="[
-        139.64378356933594, 35.2825927734375, 139.6698760986328,
-        35.30113220214844,
-      ]"
       :projection="projection"
     />
 
@@ -32,44 +28,51 @@
       v-if="jawgLayer != null"
     >
     </ol-zone-control>
-    <!-- 
+
     <ol-tile-layer ref="osmLayer" title="OSM">
       <ol-source-osm />
-    </ol-tile-layer> -->
-
-    <ol-tile-layer ref="wmtsLayer">
-      <ol-source-wmts
-        :url="'http://192.168.11.4:8087/geoserver/gwc/service/wmts'"
-        format="image/png"
-        :layer="'ftp:JB11_IRS_000002417_002_001_010_L2C'"
-        matrixSet="EPSG:4326"
-        :projection="'EPSG:4326'"
-        :center="[139.65682983398438, 35.29186248779297]"
-      />
     </ol-tile-layer>
 
-    <!-- <ol-tile-layer ref="jawgLayer" title="JAWG">
+    <ol-tile-layer ref="jawgLayer" title="JAWG">
       <ol-source-xyz
         crossOrigin="anonymous"
         url="https://c.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token=87PWIbRaZAGNmYDjlYsLkeTVJpQeCfl2Y61mcHopxXqSdxXExoTLEv7dwqBwSWuJ"
       />
-    </ol-tile-layer> -->
-
-    <ol-control-toggle
-      :order="0"
-      html="<i class='fas fa-map-marker'></i>"
-      className="edit"
-      title="Point"
-      :onToggle="(active) => changeDrawType(active, 'Polygon')"
-    />
-
-    <ol-control-toggle
-      :order="1"
-      html="<i class='fas fa-draw-polygon'></i>"
-      className="edit"
-      title="Polygon"
-      :onToggle="(active) => changeDrawType(active, 'undo')"
-    />
+    </ol-tile-layer>
+    <!-- 
+    <ol-control-bar>
+      <ol-control-toggle
+        :order="0"
+        html="<i class='fas fa-map-marker'></i>"
+        className="edit"
+        title="Point"
+        :onToggle="(active) => changeDrawType(active, 'Point')"
+      />
+      <ol-control-toggle
+        :order="1"
+        html="<i class='fas fa-draw-polygon'></i>"
+        className="edit"
+        title="Polygon"
+        :onToggle="(active) => changeDrawType(active, 'Polygon')"
+      />
+      <ol-control-toggle
+        :order="2"
+        html="<i class='fas fa-circle'></i>"
+        className="edit"
+        title="Circle"
+        :onToggle="(active) => changeDrawType(active, 'Circle')"
+      />
+      <ol-control-toggle
+        :order="3"
+        html="<i class='fas fa-grip-lines'></i>"
+        className="edit"
+        title="LineString"
+        :onToggle="(active) => changeDrawType(active, 'LineString')"
+      />
+      <ol-control-videorecorder :order="4" @stop="videoStopped">
+      </ol-control-videorecorder>
+      <ol-control-printdialog :order="5" />
+    </ol-control-bar> -->
 
     <ol-mouseposition-control />
     <ol-fullscreen-control />
@@ -83,12 +86,12 @@
     <ol-rotate-control />
     <ol-zoom-control />
     <ol-zoomslider-control />
-    <!-- <ol-zoomtoextent-control
+    <ol-zoomtoextent-control
       :extent="[23.906, 42.812, 46.934, 34.597]"
       tipLabel="Fit to Turkey"
-    /> -->
+    />
 
-    <!-- <ol-context-menu :items="contextMenuItems" /> -->
+    <ol-context-menu :items="contextMenuItems" />
     <ol-interaction-dragrotatezoom />
     <ol-interaction-clusterselect @select="featureSelected" :pointRadius="20">
       <ol-style>
@@ -111,8 +114,16 @@
       </ol-style>
     </ol-interaction-select>
 
-    <ol-vector-layer title="AIRPORTS">
-      <ol-source-vector ref="cities">
+    <ol-vector-layer
+      title="AIRPORTS"
+      preview="https://raw.githubusercontent.com/MelihAltintas/vue3-openlayers/main/src/assets/tr.png"
+    >
+      <ol-source-vector
+        ref="cities"
+        url="https://raw.githubusercontent.com/alpers/Turkey-Maps-GeoJSON/master/tr-cities-airports.json"
+        :format="geoJson"
+        :projection="projection"
+      >
         <ol-interaction-modify
           v-if="drawEnable"
           @modifyend="modifyend"
@@ -121,7 +132,7 @@
         </ol-interaction-modify>
 
         <ol-interaction-draw
-          ref="drawRef"
+          v-if="drawEnable"
           :type="drawType"
           @drawend="drawend"
           @drawstart="drawstart"
@@ -266,7 +277,7 @@ export default {
   setup() {
     const center = ref([34, 39.13]);
     const projection = ref("EPSG:4326");
-    const zoom = ref(1);
+    const zoom = ref(6);
     const rotation = ref(0);
     const format = inject("ol-format");
 
@@ -289,18 +300,11 @@ export default {
     const view = ref(null);
 
     const drawEnable = ref(false);
-    const drawType = ref("Polygon");
+    const drawType = ref("Point");
 
-    let drawRef = ref();
     const changeDrawType = (active, draw) => {
-      console.log("------------------------------------");
-      console.log(active);
-      console.log("------------------------------------");
-      //   if (active === "undo") {
-      drawRef.value.draw.removeLastPoint();
-      //   }
-      //   drawEnable.value = active;
-      //   drawType.value = draw;
+      drawEnable.value = active;
+      drawType.value = draw;
     };
 
     contextMenuItems.value = [
@@ -453,7 +457,6 @@ export default {
       },
     };
     return {
-      drawRef,
       center,
       projection,
       zoom,
